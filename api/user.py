@@ -17,6 +17,7 @@ class BaseMethodView(MethodView):
 
 
 class RegisterApi(BaseMethodView):
+    # 注册类型
     RT = ("phone",)
 
     # noinspection PyBroadException
@@ -42,7 +43,8 @@ class RegisterApi(BaseMethodView):
             return Response(400, message="illegal password").to_json(), 400
 
         with session_scope() as session:
-            if UserAuth.search(username) is not None:
+            ua = session.query(UserAuth).filter(UserAuth.username == username).first()
+            if ua:
                 return Response(400, message="username:{} already exists".format(username)).to_json(), 400
 
             uid = random_uid()
@@ -82,17 +84,18 @@ class LoginApi(BaseMethodView):
         if not valid_password(password):
             return Response(400, message="illegal password").to_json(), 400
 
-        user_auth = UserAuth.search(username)
-        if user_auth is None:
-            return Response(code=400, message="username or password is wrong").to_json(), 400
+        with session_scope() as session:
+            ua = session.query(UserAuth).filter(UserAuth.username == username).first()
+            if ua is None:
+                return Response(code=400, message="username or password is wrong").to_json(), 400
 
-        uid = user_auth.uid
-        correct = user_auth.password
+        uid = ua.uid
+        correct = ua.password
 
         salt = salt_from_uid(uid)
         encrypted = UserAuth.encrypt_password(password, salt)
 
-        if correct != encrypted:
+        if encrypted != correct:
             return Response(code=400, message="username or password is wrong").to_json(), 400
 
         token = random_token()
@@ -149,7 +152,7 @@ class SelfApi(BaseMethodView):
         """
         更新个人信息
         """
-        params = request.args
+        params = request.form
         client_uid = params.get("uid")
         nickname = params.get("nickname")
         gender = params.get("gender")

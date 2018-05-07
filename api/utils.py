@@ -9,7 +9,7 @@ import uuid
 
 from flask import request
 
-from db.database import RedisCache
+from db.database import RedisCache, session_scope
 from db.models import Oauth, Response
 
 __all__ = ["salt_from_uid", "random_token", "random_uid", "valid_app_id", "valid_signature",
@@ -53,9 +53,10 @@ oauth = dict()
 def valid_app_id(app_id):
     try:
         if app_id not in oauth:
-            target = Oauth.search(app_id)
-            if target:
-                oauth[target.app_id] = target.app_secret
+            with session_scope() as sess:
+                target = sess.query(Oauth).filter(Oauth.app_id == app_id).first()
+                if target:
+                    oauth[target.app_id] = target.app_secret
         return app_id in oauth
     except BaseException:
         return False
@@ -77,8 +78,7 @@ def valid_signature(app_id, timestamp, method, path, sig):
     try:
         app_secret = oauth.get(app_id).encode("utf8")
         msg = (method + path + "?app_id=" + app_id + "&timestamp=" + str(timestamp)).encode("utf8")
-        correct_sig = hmac.new(app_secret, msg, hashlib.sha1).hexdigest()
-        print("sig:{} correct:{}".format(sig, correct_sig))
+        correct_sig = hmac.new(app_secret, msg, hashlib.sha256).hexdigest()
         if sig == correct_sig:
             return True
         else:
@@ -99,6 +99,7 @@ def login_required(func):
         try:
             auth = request.headers.get("Authorization")
             if auth and isinstance(auth, str):
+
                 token_type, access_token = auth.split(" ")
                 uid = RedisCache.get(access_token)
                 if uid:
@@ -112,7 +113,7 @@ def login_required(func):
     return wrapper
 
 
-def common_logger(name, file, sl=logging.DEBUG, fl=logging.WARNING):
+def common_logger(name, file, sl=logging.DEBUG, fl=logging.INFO):
     target = logging.getLogger(name)
     target.setLevel(logging.DEBUG)
 

@@ -4,7 +4,7 @@ import hmac
 from flask import jsonify
 from sqlalchemy import Column, SmallInteger, Integer, BigInteger, String
 
-from db.database import Model, session_scope
+from db.database import Model
 
 __all__ = ["User", "UserAuth", "Response", "Oauth"]
 
@@ -53,12 +53,6 @@ class UserAuth(Model):
     verified = Column(SmallInteger, default=0, comment="是否认证过")
 
     @staticmethod
-    def search(username):
-        with session_scope() as session:
-            target = session.query(UserAuth).filter(UserAuth.username == username).first()
-        return target
-
-    @staticmethod
     def encrypt_password(password, salt):
         if isinstance(password, str):
             password = password.encode("utf8")
@@ -77,12 +71,6 @@ class Oauth(Model):
     uid = Column(String(128), comment="用户唯一id")
     app_id = Column(String(128), comment="授权id")
     app_secret = Column(String(128), comment="授权secret")
-
-    @staticmethod
-    def search(app_id):
-        with session_scope() as sess:
-            target = sess.query(Oauth).filter(Oauth.app_id == app_id).first()
-        return target
 
     @staticmethod
     def __repr__(self):

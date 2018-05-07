@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, request
 
 from api.user import RegisterApi, LoginApi, LogoutApi, SelfApi
@@ -15,8 +17,8 @@ app.add_url_rule("/api/self", view_func=SelfApi.as_view("self"))
 
 @app.before_request
 def before_request_hook():
-    logger.debug("%s URL: %s", request.method, request.url)
-    logger.debug("Headers: %s", request.headers)
+    logger.info("%s: %s", request.method, request.url)
+    logger.info("Headers:%s %s", os.linesep, request.headers)
 
     params = request.values
     method = request.method
@@ -28,8 +30,10 @@ def before_request_hook():
 
     if not valid_app_id(app_id):
         return Response(4101, "Illegal app_id").to_json(), 400
+
     if not valid_timestamp(timestamp):
         return Response(4102, "Illegal timestamp").to_json(), 400
+
     if not valid_signature(app_id, timestamp, method, path, sig):
         return Response(4102, "Illegal signature").to_json(), 400
 
