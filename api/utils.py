@@ -14,7 +14,7 @@ from db.models import Oauth, Response
 
 __all__ = ["salt_from_uid", "random_token", "random_uid", "valid_app_id", "valid_signature",
            "login_required", "valid_timestamp", "valid_phone", "valid_password", "common_logger",
-           "logger"]
+           "logger", "timestamp"]
 
 
 def salt_from_uid(uid):
