@@ -17,8 +17,8 @@ app.add_url_rule("/api/self", view_func=SelfApi.as_view("self"))
 
 @app.before_request
 def before_request_hook():
-    logger.info("%s: %s", request.method, request.url)
-    logger.info("Headers:%s %s", os.linesep, request.headers)
+    logger.info("%s : %s %s", request.remote_addr, request.method, request.url)
+    logger.info("Headers:%s%s", os.linesep, request.headers)
 
     params = request.values
     method = request.method
