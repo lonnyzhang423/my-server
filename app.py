@@ -2,8 +2,8 @@ import os
 
 from flask import Flask, request
 
-from api.user import RegisterApi, LoginApi, LogoutApi, SelfApi
-from api.utils import logger, valid_timestamp, valid_app_id, valid_signature
+from api.account import *
+from api.utils import *
 from db.database import init_db
 from db.models import Response
 

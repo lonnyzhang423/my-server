@@ -1,6 +1,5 @@
 import hashlib
 import hmac
-from concurrent.futures import ThreadPoolExecutor
 
 import requests
 
@@ -67,12 +66,8 @@ def get_self():
 
 
 if __name__ == '__main__':
-    # register()
-    # login()
-    # get_self()
-    # update_self()
-    # get_self()
-
-    with ThreadPoolExecutor(max_workers=50) as worker:
-        for i in range(1000):
-            worker.submit(login)
+    register()
+    login()
+    get_self()
+    update_self()
+    get_self()

@@ -5,6 +5,8 @@ from api.utils import *
 from db.database import RedisCache, session_scope
 from db.models import *
 
+__all__ = ["RegisterApi", "LoginApi", "LogoutApi", "SelfApi", "PasswordApi"]
+
 
 class BaseMethodView(MethodView):
 
@@ -163,6 +165,7 @@ class SelfApi(BaseMethodView):
 
         if not uid:
             return Response(401, "access_token is invalid or out of date").to_json(), 401
+
         if uid != client_uid:
             return Response(401, "uid mismatch").to_json(), 401
 
@@ -175,3 +178,9 @@ class SelfApi(BaseMethodView):
                 return Response(0, message="update success", data=target.to_dict()).to_json()
             else:
                 return Response(500, "uid not found").to_json(), 500
+
+
+class PasswordApi(BaseMethodView):
+
+    def put(self):
+        pass
