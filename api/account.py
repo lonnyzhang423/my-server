@@ -122,7 +122,7 @@ class LogoutApi(BaseMethodView):
         if client_uid != uid:
             return Response(400, "uid mismatch").to_json(), 400
         RedisCache.delete(access_token)
-        return Response(0, data={"message": "logout success uid:{}".format(uid)}).to_json()
+        return Response(0, message="logout success uid:{}".format(uid)).to_json()
 
 
 # noinspection PyMethodMayBeStatic
@@ -167,7 +167,7 @@ class SelfApi(BaseMethodView):
             return Response(401, "access_token is invalid or out of date").to_json(), 401
 
         if uid != client_uid:
-            return Response(401, "uid mismatch").to_json(), 401
+            return Response(401, "uid mismatch").to_json(), 400
 
         with session_scope() as session:
             target = session.query(User).filter(User.uid == uid).first()

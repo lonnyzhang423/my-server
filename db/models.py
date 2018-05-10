@@ -14,7 +14,7 @@ class User(Model):
 
     id = Column(BigInteger, primary_key=True)
     uid = Column(String(128), comment="用户唯一id")
-    nick_name = Column(String(128), comment="昵称")
+    nickname = Column(String(128), comment="昵称")
     gender = Column(SmallInteger, comment="性别，0:女 1:男")
     avatar = Column(String(128), comment="头像地址")
     birthday = Column(Integer, comment="生日")
@@ -26,8 +26,8 @@ class User(Model):
     def to_dict(self):
         result = {"uid": self.uid}
 
-        if self.nick_name:
-            result["nick_name"] = self.nick_name
+        if self.nickname:
+            result["nickname"] = self.nickname
         if self.gender:
             result["gender"] = self.gender
         if self.avatar:
@@ -39,7 +39,7 @@ class User(Model):
         return result
 
     def __repr__(self):
-        return "User(uid={},name={})".format(self.uid, self.nick_name)
+        return "User(uid={},name={})".format(self.uid, self.nickname)
 
 
 class UserAuth(Model):

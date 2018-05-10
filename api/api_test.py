@@ -3,14 +3,12 @@ import hmac
 
 import requests
 
-from api.utils import timestamp
-
 host = "http://localhost:5000"
 
 
 def common_params(method=None, path=None, app_id="root_app_id", app_secret="root_app_secret"):
-    ts = timestamp()
-    msg = (method + path + "?app_id=" + app_id + "&timestamp=" + str(ts)).encode("utf8")
+    ts = "1525920230972"
+    msg = (method + path + "?app_id=" + app_id + "&timestamp=" + ts).encode("utf8")
     app_secret = app_secret.encode("utf8")
     sig = hmac.new(app_secret, msg, hashlib.sha256).hexdigest()
     return {"timestamp": str(ts), "app_id": app_id, "signature": sig}
@@ -66,8 +64,8 @@ def get_self():
 
 
 if __name__ == '__main__':
-    register()
-    login()
-    get_self()
+    # register()
+    # login()
+    # get_self()
     update_self()
-    get_self()
+    # get_self()

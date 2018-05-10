@@ -79,7 +79,7 @@ def valid_signature(app_id, timestamp, method, path, sig):
         app_secret = oauth.get(app_id).encode("utf8")
         msg = (method + path + "?app_id=" + app_id + "&timestamp=" + str(timestamp)).encode("utf8")
         correct_sig = hmac.new(app_secret, msg, hashlib.sha256).hexdigest()
-        if sig == correct_sig:
+        if sig.lower() == correct_sig.lower():
             return True
         else:
             return False
@@ -99,7 +99,6 @@ def login_required(func):
         try:
             auth = request.headers.get("Authorization")
             if auth and isinstance(auth, str):
-
                 token_type, access_token = auth.split(" ")
                 uid = RedisCache.get(access_token)
                 if uid:
