@@ -1,11 +1,11 @@
 import contextlib
-import json
-import os
 
 import redis
 from sqlalchemy import engine_from_config
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
+
+from config import Config
 
 __all__ = ["init_db", "session_scope", "Model", "RedisCache"]
 
@@ -19,14 +19,6 @@ def init_db():
 def init_redis():
     pool = redis.ConnectionPool(host="localhost", port=6379, db=0, decode_responses=True)
     return redis.Redis(connection_pool=pool)
-
-
-def _load_config():
-    parent = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-    target = os.path.join(parent, "config.json")
-    with open(target, encoding="utf8") as f:
-        config = json.load(f)
-    return config["database"]
 
 
 @contextlib.contextmanager
@@ -43,7 +35,7 @@ def session_scope():
 
 
 RedisCache = init_redis()
-_engine = engine_from_config(_load_config())
+_engine = engine_from_config(Config["database"])
 _factory = sessionmaker(bind=_engine, expire_on_commit=False)
 Session = scoped_session(_factory)
 Model = declarative_base()

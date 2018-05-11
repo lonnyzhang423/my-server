@@ -9,6 +9,7 @@ import uuid
 
 from flask import request
 
+from config import Config
 from db.database import RedisCache, session_scope
 from db.models import Oauth, Response
 
@@ -63,9 +64,20 @@ def valid_app_id(app_id):
 
 
 # noinspection PyBroadException
+def valid_nonce(nonce):
+    try:
+        exists = RedisCache.exists(nonce)
+        gap = Config["request_gap_between_cs"]
+        RedisCache.set(nonce, nonce, ex=gap // 1000)
+        return not exists
+    except BaseException:
+        return False
+
+
+# noinspection PyBroadException
 def valid_timestamp(ts):
     try:
-        max_ts_gap = 1000 * 60 * 60 * 12
+        max_ts_gap = Config["request_gap_between_cs"]
         sts = timestamp()
         cts = int(ts)
         return (sts - cts) < max_ts_gap
@@ -74,10 +86,12 @@ def valid_timestamp(ts):
 
 
 # noinspection PyBroadException
-def valid_signature(app_id, timestamp, method, path, sig):
+def valid_signature(app_id, timestamp, nonce, method, path, sig):
     try:
         app_secret = oauth.get(app_id).encode("utf8")
-        msg = (method + path + "?app_id=" + app_id + "&timestamp=" + str(timestamp)).encode("utf8")
+        msg = (method + path + "?app_id=" + app_id +
+               "&nonce=" + nonce +
+               "&timestamp=" + str(timestamp)).encode("utf8")
         correct_sig = hmac.new(app_secret, msg, hashlib.sha256).hexdigest()
         if sig.lower() == correct_sig.lower():
             return True
@@ -126,7 +140,7 @@ def common_logger(name, file, sl=logging.DEBUG, fl=logging.INFO):
     logfile = os.path.join(logdir, file)
 
     # 100MB
-    fh = logging.handlers.RotatingFileHandler(logfile, maxBytes=1024 * 1024 * 100,
+    fh = logging.handlers.RotatingFileHandler(logfile, maxBytes=Config["log_file_max_bytes"],
                                               encoding="utf8", backupCount=2)
     sh = logging.StreamHandler()
 

@@ -1,7 +1,8 @@
 from flask import request
 from flask.views import MethodView
 
-from api.utils import *
+import utils
+from config import Config
 from db.database import RedisCache, session_scope
 from db.models import *
 
@@ -38,10 +39,10 @@ class RegisterApi(BaseMethodView):
             else:
                 return Response(code=400, message="unsupported register_type:{}".format(rt)).to_json(), 400
 
-        if not valid_phone(username):
+        if not utils.valid_phone(username):
             return Response(400, message="illegal phone num").to_json(), 400
 
-        if not valid_password(password):
+        if not utils.valid_password(password):
             return Response(400, message="illegal password").to_json(), 400
 
         with session_scope() as session:
@@ -49,8 +50,8 @@ class RegisterApi(BaseMethodView):
             if ua:
                 return Response(400, message="username:{} already exists".format(username)).to_json(), 400
 
-            uid = random_uid()
-            salt = salt_from_uid(uid)
+            uid = utils.random_uid()
+            salt = utils.salt_from_uid(uid)
             encrypted_password = UserAuth.encrypt_password(password, salt)
 
             user = User(uid=uid)
@@ -62,9 +63,6 @@ class RegisterApi(BaseMethodView):
 
 
 class LoginApi(BaseMethodView):
-    # 1 month
-    TOKEN_EXPIRES_MS = 30 * 24 * 60 * 60 * 1000
-
     def post(self):
         """
         登录
@@ -80,10 +78,10 @@ class LoginApi(BaseMethodView):
             else:
                 return Response(code=400, message="unsupported login_type:{}".format(gt)).to_json(), 400
 
-        if not valid_phone(username):
+        if not utils.valid_phone(username):
             return Response(400, message="illegal phone num").to_json(), 400
 
-        if not valid_password(password):
+        if not utils.valid_password(password):
             return Response(400, message="illegal password").to_json(), 400
 
         with session_scope() as session:
@@ -94,23 +92,24 @@ class LoginApi(BaseMethodView):
         uid = ua.uid
         correct = ua.password
 
-        salt = salt_from_uid(uid)
+        salt = utils.salt_from_uid(uid)
         encrypted = UserAuth.encrypt_password(password, salt)
 
         if encrypted != correct:
             return Response(code=400, message="username or password is wrong").to_json(), 400
 
-        token = random_token()
-        RedisCache.set(name=token, value=uid, ex=LoginApi.TOKEN_EXPIRES_MS // 1000)
+        token = utils.random_token()
+        expires_in = Config["token_expires_in_ms"]
+        RedisCache.set(name=token, value=uid, ex=expires_in // 1000)
 
         return Response(code=0, message="login success",
                         data={"uid": uid, "access_token": token, "token_type": "Bearer",
-                              "expires_in": self.TOKEN_EXPIRES_MS}).to_json()
+                              "expires_in": expires_in}).to_json()
 
 
 class LogoutApi(BaseMethodView):
 
-    @login_required
+    @utils.login_required
     def post(self, uid=None, access_token=None):
         """
         退出登录
@@ -128,8 +127,8 @@ class LogoutApi(BaseMethodView):
 # noinspection PyMethodMayBeStatic
 class SelfApi(BaseMethodView):
 
-    @login_required
-    def get(self, uid=None, access_token=None):
+    @utils.login_required
+    def get(self, uid: object = None, access_token: object = None) -> object:
         """
         获取个人信息
         """
@@ -149,7 +148,7 @@ class SelfApi(BaseMethodView):
             else:
                 return Response.e_500().to_json(), 500
 
-    @login_required
+    @utils.login_required
     def put(self, uid=None, access_token=None):
         """
         更新个人信息

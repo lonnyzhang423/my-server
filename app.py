@@ -2,8 +2,8 @@ import os
 
 from flask import Flask, request
 
+import utils
 from api.account import *
-from api.utils import *
 from db.database import init_db
 from db.models import Response
 
@@ -17,8 +17,8 @@ app.add_url_rule("/api/self", view_func=SelfApi.as_view("self"))
 
 @app.before_request
 def before_request_hook():
-    logger.info("%s : %s %s", request.remote_addr, request.method, request.url)
-    logger.info("Headers:%s%s", os.linesep, request.headers)
+    utils.logger.info("%s : %s %s", request.remote_addr, request.method, request.url)
+    utils.logger.info("Headers:%s%s", os.linesep, request.headers)
 
     params = request.values
     method = request.method
@@ -26,16 +26,17 @@ def before_request_hook():
 
     app_id = params.get("app_id")
     timestamp = params.get("timestamp")
+    nonce = params.get("nonce")
     sig = params.get("signature")
 
-    if not valid_app_id(app_id):
-        return Response(4101, "Illegal app_id").to_json(), 400
-
-    if not valid_timestamp(timestamp):
-        return Response(4102, "Illegal timestamp").to_json(), 400
-
-    if not valid_signature(app_id, timestamp, method, path, sig):
-        return Response(4102, "Illegal signature").to_json(), 400
+    if not utils.valid_nonce(nonce):
+        return Response(400, "Illegal nonce").to_json(), 400
+    if not utils.valid_timestamp(timestamp):
+        return Response(400, "Illegal timestamp").to_json(), 400
+    if not utils.valid_app_id(app_id):
+        return Response(400, "Illegal app_id").to_json(), 400
+    if not utils.valid_signature(app_id, timestamp, nonce, method, path, sig):
+        return Response(400, "Illegal signature").to_json(), 400
 
 
 @app.errorhandler(404)
