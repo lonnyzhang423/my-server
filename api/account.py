@@ -1,22 +1,12 @@
 from flask import request
-from flask.views import MethodView
 
 import utils
+from api import BaseMethodView
 from config import Config
 from db.database import RedisCache, session_scope
 from db.models import *
 
 __all__ = ["RegisterApi", "LoginApi", "LogoutApi", "SelfApi", "PasswordApi"]
-
-
-class BaseMethodView(MethodView):
-
-    # noinspection PyBroadException
-    def dispatch_request(self, *args, **kwargs):
-        try:
-            return super().dispatch_request(*args, **kwargs)
-        except BaseException:
-            return Response.e_500().to_json(), 500
 
 
 class RegisterApi(BaseMethodView):
