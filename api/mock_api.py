@@ -75,9 +75,17 @@ def get_self():
     print(resp)
 
 
+def get_headers():
+    path = "/api/utils/headers"
+    url = host + path
+    resp = requests.get(url).json()
+    print(resp)
+
+
 if __name__ == '__main__':
-    register()
-    login()
-    get_self()
+    # register()
+    # login()
+    # get_self()
     # update_self()
     # get_self()
+    pass

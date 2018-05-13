@@ -1,5 +1,6 @@
 import argparse
 import os
+import threading
 
 from flask import Flask, request
 
@@ -21,19 +22,21 @@ app.add_url_rule("/api/utils/headers", view_func=HeadersApi.as_view("headers"))
 app.add_url_rule("/api/utils/uuid", view_func=UUIDApi.as_view("uuid"))
 app.add_url_rule("/api/utils/anything", view_func=AnythingApi.as_view("anything"))
 
-white_list = Config["open_api"]
+open_api_list = Config["open_api"]
 
 
 @app.before_request
 def before_request_hook():
+    utils.logger.info(threading.current_thread().getName())
     utils.logger.info("%s : %s %s", request.remote_addr, request.method, request.url)
     utils.logger.info("Headers:%s%s", os.linesep, request.headers)
 
     params = request.values
     method = request.method
     path = request.path
-    if path in white_list:
+    if path in open_api_list:
         return
+
     app_id = params.get("app_id")
     timestamp = params.get("timestamp")
     nonce = params.get("nonce")

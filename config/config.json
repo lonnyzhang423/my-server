@@ -7,5 +7,12 @@
   },
   "token_expires_in_ms": 2592000000,
   "request_gap_between_cs": 7200000,
-  "log_file_max_bytes": 104857600
+  "log_file_max_bytes": 104857600,
+  "open_api": [
+    "/",
+    "/api/utils/ip",
+    "/api/utils/uuid",
+    "/api/utils/headers",
+    "/api/utils/anything"
+  ]
 }
