@@ -4,9 +4,9 @@ import os
 from flask import Flask, request
 
 import utils
-from config import Config
 from api.account import *
 from api.utils import *
+from config import Config
 from db.database import init_db
 from db.models import Response
 
@@ -32,20 +32,21 @@ def before_request_hook():
     params = request.values
     method = request.method
     path = request.path
-    if path not in white_list:
-        app_id = params.get("app_id")
-        timestamp = params.get("timestamp")
-        nonce = params.get("nonce")
-        sig = params.get("signature")
+    if path in white_list:
+        return
+    app_id = params.get("app_id")
+    timestamp = params.get("timestamp")
+    nonce = params.get("nonce")
+    sig = params.get("signature")
 
-        if not utils.valid_nonce(nonce):
-            return Response(400, "Illegal nonce").to_json(), 400
-        if not utils.valid_timestamp(timestamp):
-            return Response(400, "Illegal timestamp").to_json(), 400
-        if not utils.valid_app_id(app_id):
-            return Response(400, "Illegal app_id").to_json(), 400
-        if not utils.valid_signature(app_id, timestamp, nonce, method, path, sig):
-            return Response(400, "Illegal signature").to_json(), 400
+    if not utils.valid_nonce(nonce):
+        return Response(400, "Illegal nonce").to_json(), 400
+    if not utils.valid_timestamp(timestamp):
+        return Response(400, "Illegal timestamp").to_json(), 400
+    if not utils.valid_app_id(app_id):
+        return Response(400, "Illegal app_id").to_json(), 400
+    if not utils.valid_signature(app_id, timestamp, nonce, method, path, sig):
+        return Response(400, "Illegal signature").to_json(), 400
 
 
 @app.errorhandler(404)
