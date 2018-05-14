@@ -1,12 +1,11 @@
 import hashlib
 import hmac
 
-from flask import jsonify
 from sqlalchemy import Column, SmallInteger, Integer, BigInteger, String
 
 from db.database import Model
 
-__all__ = ["User", "UserAuth", "Response", "Oauth"]
+__all__ = ["User", "UserAuth", "Oauth"]
 
 
 class User(Model):
@@ -19,9 +18,6 @@ class User(Model):
     avatar = Column(String(128), comment="头像地址")
     birthday = Column(Integer, comment="生日")
     headline = Column(String(256), comment="简介")
-
-    def to_json(self):
-        return jsonify(self.to_dict())
 
     def to_dict(self):
         result = {"uid": self.uid}
@@ -75,57 +71,3 @@ class Oauth(Model):
     @staticmethod
     def __repr__(self):
         return "Oauth(uid={},app_id={})".format(self.uid, self.app_id)
-
-
-class Response(object):
-
-    def __init__(self, code=0, message=None, data=None):
-        self.code = code
-        self.data = data
-        self.message = message
-
-    def to_dict(self):
-        d = {"code": self.code}
-        if self.data:
-            d["data"] = self.data
-        if self.message:
-            d["message"] = self.message
-        return d
-
-    def to_json(self):
-        return jsonify(self.to_dict())
-
-    def __repr__(self):
-        return str(self.to_dict())
-
-    @staticmethod
-    def e_400():
-        return Response(400, "Bad Request")
-
-    @staticmethod
-    def e_401():
-        return Response(401, "Unauthorized")
-
-    @staticmethod
-    def e_403():
-        return Response(403, "Forbidden")
-
-    @staticmethod
-    def e_404():
-        return Response(404, "Not Found")
-
-    @staticmethod
-    def e_405():
-        return Response(405, "Method Not Allowed")
-
-    @staticmethod
-    def e_500():
-        return Response(500, "Internal Server Error")
-
-    @staticmethod
-    def e_503():
-        return Response(503, "Service Unavailable")
-
-    @staticmethod
-    def e_505():
-        return Response(505, "HTTP Version Not Supported")

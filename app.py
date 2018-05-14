@@ -2,14 +2,14 @@ import argparse
 import os
 import threading
 
-from flask import Flask, request
+from flask import Flask, request, Response
 
 import utils
+from api import RespData
 from api.account import *
 from api.utils import *
 from config import Config
 from db.database import init_db
-from db.models import Response
 
 app = Flask(__name__)
 
@@ -43,28 +43,35 @@ def before_request_hook():
     sig = params.get("signature")
 
     if not utils.valid_nonce(nonce):
-        return Response(400, "Illegal nonce").to_json(), 400
+        data = RespData(code=400, message="Illegal nonce").to_json()
+        return Response(status=400, response=data)
     if not utils.valid_timestamp(timestamp):
-        return Response(400, "Illegal timestamp").to_json(), 400
+        data = RespData(code=400, message="Illegal timestamp").to_json()
+        return Response(status=400, response=data)
     if not utils.valid_app_id(app_id):
-        return Response(400, "Illegal app_id").to_json(), 400
+        data = RespData(code=400, message="Illegal app_id").to_json()
+        return Response(status=400, response=data)
     if not utils.valid_signature(app_id, timestamp, nonce, method, path, sig):
-        return Response(400, "Illegal signature").to_json(), 400
+        data = RespData(code=400, message="Illegal signature").to_json()
+        return Response(status=400, response=data)
 
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return Response.e_404().to_json(), 404
+    data = RespData(code=404, message="Not Found").to_json()
+    return Response(status=404, response=data)
 
 
 @app.errorhandler(405)
 def method_not_allowed(e):
-    return Response.e_405().to_json(), 405
+    data = RespData(code=405, message="Method Not Allowed").to_json()
+    return Response(status=405, response=data)
 
 
 @app.errorhandler(500)
 def server_internal_error(e):
-    return Response.e_500().to_json(), 500
+    data = RespData(code=500, message="Internal Server Error").to_json()
+    return Response(status=500, response=data)
 
 
 if __name__ == "__main__":

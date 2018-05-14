@@ -1,6 +1,7 @@
-from flask.views import MethodView
+import json
 
-from db.models import Response
+from flask import Response
+from flask.views import MethodView
 
 
 class BaseMethodView(MethodView):
@@ -10,4 +11,26 @@ class BaseMethodView(MethodView):
         try:
             return super().dispatch_request(*args, **kwargs)
         except BaseException:
-            return Response.e_500().to_json(), 500
+            data = RespData(code=500, message="Internal Server Error").to_json()
+            return Response(status=500, response=data)
+
+
+class RespData:
+    def __init__(self, code=0, message=None, data=None):
+        self.code = code
+        self.data = data
+        self.message = message
+
+    def to_dict(self):
+        d = {"code": self.code}
+        if self.data:
+            d["data"] = self.data
+        if self.message:
+            d["message"] = self.message
+        return d
+
+    def to_json(self):
+        return json.dumps(self.to_dict())
+
+    def __repr__(self):
+        return str(self.to_dict())

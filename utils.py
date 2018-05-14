@@ -7,11 +7,11 @@ import os
 import re
 import uuid
 
-from flask import request
-
+from flask import request, Response
+from api import RespData
 from config import Config
 from db.database import RedisCache, session_scope
-from db.models import Oauth, Response
+from db.models import Oauth
 
 __all__ = ["salt_from_uid", "random_token", "random_uid", "valid_app_id", "valid_signature",
            "login_required", "valid_timestamp", "valid_phone", "valid_password", "common_logger",
@@ -121,7 +121,8 @@ def login_required(func):
                     return func(*args, **kwargs)
         except (ValueError, AttributeError):
             pass
-        return Response.e_401().to_json(), 401
+        data = RespData(code=401, message="Unauthorized").to_json()
+        return Response(status=401, response=data)
 
     return wrapper
 
