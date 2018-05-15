@@ -1,5 +1,6 @@
 import json
 
+import helper
 from flask import Response
 from flask.views import MethodView
 
@@ -13,6 +14,7 @@ class BaseMethodView(MethodView):
         try:
             return super().dispatch_request(*args, **kwargs)
         except BaseException:
+            helper.logger.fatal("Caught Unhandled Exception.", exc_info=True)
             data = RespData(code=500, message="Internal Server Error").to_json()
             return Response(status=500, response=data)
 

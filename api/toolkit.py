@@ -51,15 +51,21 @@ class AnythingApi(BaseMethodView):
     @staticmethod
     def handle():
         url = request.url
-        headers = dict(request.headers.items())
+        req_headers = dict(request.headers.items())
         origin = request.headers.get('X-Forwarded-For', request.remote_addr)
         method = request.method
-        params = request.values
+        params = request.values.to_dict()
+
+        resp = Response()
+        resp_headers = dict(resp.headers.items())
         data = RespData(code=200, data={
             "url": url,
-            "headers": headers,
+            "req_headers": req_headers,
+            "resp_headers": resp_headers,
+            "resp_status": resp.status,
             "origin": origin,
             "method": method,
             "params": params
         }).to_json()
-        return Response(response=data)
+        resp.response = data
+        return resp
