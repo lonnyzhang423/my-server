@@ -55,17 +55,16 @@ class AnythingApi(BaseMethodView):
         origin = request.headers.get('X-Forwarded-For', request.remote_addr)
         method = request.method
         params = request.values.to_dict()
-
         resp = Response()
         resp_headers = dict(resp.headers.items())
         data = RespData(code=200, data={
             "url": url,
-            "req_headers": req_headers,
-            "resp_headers": resp_headers,
-            "resp_status": resp.status,
             "origin": origin,
             "method": method,
-            "params": params
+            "req_headers": req_headers,
+            "req_data": params,
+            "resp_status": resp.status,
+            "resp_headers": resp_headers
         }).to_json()
         resp.response = data
         return resp

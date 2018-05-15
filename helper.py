@@ -8,6 +8,7 @@ import re
 import uuid
 
 from flask import request, Response
+
 from api import RespData
 from config import Config
 from db.database import RedisCache, session_scope
@@ -47,20 +48,20 @@ def timestamp():
     return int(time.time() * 1000)
 
 
-oauth = dict()
+# noinspection PyBroadException
+@functools.lru_cache()
+def get_app_secret(app_id):
+    try:
+        with session_scope() as sess:
+            target = sess.query(Oauth).filter(Oauth.app_id == app_id).first()
+            return target.app_secret
+    except BaseException:
+        return None
 
 
 # noinspection PyBroadException
 def valid_app_id(app_id):
-    try:
-        if app_id not in oauth:
-            with session_scope() as sess:
-                target = sess.query(Oauth).filter(Oauth.app_id == app_id).first()
-                if target:
-                    oauth[target.app_id] = target.app_secret
-        return app_id in oauth
-    except BaseException:
-        return False
+    return get_app_secret(app_id) is not None
 
 
 # noinspection PyBroadException
@@ -88,7 +89,7 @@ def valid_timestamp(ts):
 # noinspection PyBroadException
 def valid_signature(app_id, timestamp, nonce, method, path, sig):
     try:
-        app_secret = oauth.get(app_id).encode("utf8")
+        app_secret = get_app_secret(app_id).encode("utf8")
         msg = (method + path + "?app_id=" + app_id +
                "&nonce=" + nonce +
                "&timestamp=" + str(timestamp)).encode("utf8")
