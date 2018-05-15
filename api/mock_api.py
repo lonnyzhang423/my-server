@@ -44,11 +44,11 @@ def update_self():
     path = "/api/self"
     url = host + path
     params = common_params("PUT", path)
-    params["uid"] = "b2ec2366fbf845498ce8cc78755325bb"
+    params["uid"] = "751069bc779440f190fd20c6b2cde3cd"
     params["nickname"] = "foo_user"
     params["gender"] = 1
     params["headline"] = "this is headline"
-    headers = {"Authorization": "Bearer e0b2eb56-0c10-4a82-b1f0-8de7a818ebe5"}
+    headers = {"Authorization": "Bearer 0bd028f0-6e36-493b-9d44-776522d2b444"}
     resp = requests.put(url, headers=headers, data=params).json()
     print(resp)
 
@@ -62,7 +62,7 @@ def get_self():
         url += k + "=" + v + "&"
     url = url[:-1]
     print(url)
-    headers = {"Authorization": "Bearer fc2bca23-e1e0-4d32-a140-3c6384b773de"}
+    headers = {"Authorization": "Bearer 0bd028f0-6e36-493b-9d44-776522d2b444"}
     resp = requests.get(url, headers=headers).json()
     print(resp)
 
@@ -75,9 +75,8 @@ def get_headers():
 
 
 if __name__ == '__main__':
-    # register()
-    # login()
-    # get_self()
-    # update_self()
-    # get_self()
     register()
+    login()
+    get_self()
+    update_self()
+    get_self()

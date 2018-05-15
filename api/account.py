@@ -41,7 +41,7 @@ class RegisterApi(BaseMethodView):
         with session_scope() as session:
             ua = session.query(UserAuth).filter(UserAuth.username == username).first()
             if ua:
-                data = RespData(code=400, message="illegal password").to_json()
+                data = RespData(code=400, message="username:{} already exists".format(username)).to_json()
                 return Response(status=400, response=data)
 
             uid = helper.random_uid()
