@@ -10,9 +10,9 @@
   "log_file_max_bytes": 104857600,
   "open_api": [
     "/",
-    "/api/utils/ip",
-    "/api/utils/uuid",
-    "/api/utils/headers",
-    "/api/utils/anything"
+    "/api/toolkit/ip",
+    "/api/toolkit/uuid",
+    "/api/toolkit/headers",
+    "/api/toolkit/anything"
   ]
 }

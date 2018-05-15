@@ -4,21 +4,13 @@ import uuid
 
 import requests
 
-import utils
+import helper
 
 host = "http://localhost:5000"
 
 
-def get_params():
-    return {
-        "timestamp": str(utils.timestamp()),
-        "app_id": "root_app_id",
-        "nonce": str(uuid.uuid4())
-    }
-
-
 def common_params(method=None, path=None, app_id="root_app_id", app_secret="root_app_secret"):
-    ts = str(utils.timestamp())
+    ts = str(helper.timestamp())
     nonce = str(uuid.uuid4())
     msg = (method + path + "?app_id=" + app_id + "&nonce=" + nonce + "&timestamp=" + ts).encode("utf8")
     app_secret = app_secret.encode("utf8")
@@ -88,5 +80,4 @@ if __name__ == '__main__':
     # get_self()
     # update_self()
     # get_self()
-    pass
     register()

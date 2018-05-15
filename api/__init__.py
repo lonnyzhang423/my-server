@@ -3,6 +3,8 @@ import json
 from flask import Response
 from flask.views import MethodView
 
+__all__ = ["BaseMethodView", "RespData"]
+
 
 class BaseMethodView(MethodView):
 
@@ -16,7 +18,7 @@ class BaseMethodView(MethodView):
 
 
 class RespData:
-    def __init__(self, code=0, message=None, data=None):
+    def __init__(self, code=200, message=None, data=None):
         self.code = code
         self.data = data
         self.message = message

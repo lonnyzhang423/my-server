@@ -1,13 +1,12 @@
 import argparse
 import os
-import threading
 
 from flask import Flask, request, Response
 
-import utils
+import helper
 from api import RespData
 from api.account import *
-from api.utils import *
+from api.toolkit import *
 from config import Config
 from db.database import init_db
 
@@ -27,9 +26,8 @@ open_api_list = Config["open_api"]
 
 @app.before_request
 def before_request_hook():
-    utils.logger.info(threading.current_thread().getName())
-    utils.logger.info("%s : %s %s", request.remote_addr, request.method, request.url)
-    utils.logger.info("Headers:%s%s", os.linesep, request.headers)
+    helper.logger.info("%s : %s %s", request.remote_addr, request.method, request.url)
+    helper.logger.info("Headers:%s%s", os.linesep, request.headers)
 
     params = request.values
     method = request.method
@@ -42,16 +40,16 @@ def before_request_hook():
     nonce = params.get("nonce")
     sig = params.get("signature")
 
-    if not utils.valid_nonce(nonce):
+    if not helper.valid_nonce(nonce):
         data = RespData(code=400, message="Illegal nonce").to_json()
         return Response(status=400, response=data)
-    if not utils.valid_timestamp(timestamp):
+    if not helper.valid_timestamp(timestamp):
         data = RespData(code=400, message="Illegal timestamp").to_json()
         return Response(status=400, response=data)
-    if not utils.valid_app_id(app_id):
+    if not helper.valid_app_id(app_id):
         data = RespData(code=400, message="Illegal app_id").to_json()
         return Response(status=400, response=data)
-    if not utils.valid_signature(app_id, timestamp, nonce, method, path, sig):
+    if not helper.valid_signature(app_id, timestamp, nonce, method, path, sig):
         data = RespData(code=400, message="Illegal signature").to_json()
         return Response(status=400, response=data)
 
@@ -80,5 +78,6 @@ if __name__ == "__main__":
     parser.add_argument("--port", type=int, default=5000)
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--debug", type=bool, default=True)
+    parser.add_argument("--threaded", type=bool, default=True)
     args = parser.parse_args()
-    app.run(host=args.host, port=args.port, debug=args.debug)
+    app.run(host=args.host, port=args.port, debug=args.debug, threaded=args.threaded)
