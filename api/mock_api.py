@@ -1,12 +1,13 @@
 import hashlib
 import hmac
 import uuid
+from concurrent.futures import ThreadPoolExecutor
 
 import requests
 
 import helper
 
-host = "http://localhost:5000"
+host = "http://localhost:8080"
 
 
 def common_params(method=None, path=None, app_id="root_app_id", app_secret="root_app_secret"):
@@ -68,15 +69,18 @@ def get_self():
 
 
 def get_headers():
-    path = "/api/utils/headers"
+    path = "/api/toolkit/headers"
     url = host + path
     resp = requests.get(url).json()
     print(resp)
 
 
 if __name__ == '__main__':
-    register()
-    login()
-    get_self()
-    update_self()
-    get_self()
+    # register()
+    # login()
+    # get_self()
+    # update_self()
+    # get_self()
+    with ThreadPoolExecutor(max_workers=10) as worker:
+        for i in range(100):
+            worker.submit(get_headers())

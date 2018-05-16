@@ -10,6 +10,7 @@ from api.toolkit import *
 from config import Config
 from db.database import init_db
 
+init_db()
 app = Flask(__name__)
 
 app.add_url_rule("/api/register", view_func=RegisterApi.as_view("register"))
@@ -32,6 +33,7 @@ def before_request_hook():
     params = request.values
     method = request.method
     path = request.path
+
     if path in open_api_list:
         return
 
@@ -73,7 +75,6 @@ def server_internal_error(e):
 
 
 if __name__ == "__main__":
-    init_db()
     parser = argparse.ArgumentParser()
     parser.add_argument("--port", type=int, default=5000)
     parser.add_argument("--host", default="127.0.0.1")
