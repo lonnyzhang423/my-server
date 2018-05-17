@@ -1,10 +1,11 @@
 import json
 
-import helper
 from flask import Response
 from flask.views import MethodView
 
-__all__ = ["BaseMethodView", "RespData"]
+import helper
+
+__all__ = ["BaseMethodView", "MyResponse", "RespData"]
 
 
 class BaseMethodView(MethodView):
@@ -38,3 +39,7 @@ class RespData:
 
     def __repr__(self):
         return str(self.to_dict())
+
+
+class MyResponse(Response):
+    default_mimetype = "application/json"

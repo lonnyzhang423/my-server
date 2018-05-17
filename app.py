@@ -1,17 +1,18 @@
 import argparse
 import os
 
-from flask import Flask, request, Response
+from flask import Flask, request
 
 import helper
-from api import RespData
+from api import RespData, MyResponse
 from api.account import *
 from api.toolkit import *
-from config import Config
+from config import *
 from db.database import init_db
 
 init_db()
 app = Flask(__name__)
+app.response_class = MyResponse
 
 app.add_url_rule("/api/register", view_func=RegisterApi.as_view("register"))
 app.add_url_rule("/api/login", view_func=LoginApi.as_view("login"))
@@ -21,8 +22,6 @@ app.add_url_rule("/api/toolkit/ip", view_func=IPApi.as_view("ip"))
 app.add_url_rule("/api/toolkit/headers", view_func=HeadersApi.as_view("headers"))
 app.add_url_rule("/api/toolkit/uuid", view_func=UUIDApi.as_view("uuid"))
 app.add_url_rule("/api/toolkit/anything", view_func=AnythingApi.as_view("anything"))
-
-open_api_list = Config["open_api"]
 
 
 @app.before_request
@@ -34,7 +33,7 @@ def before_request_hook():
     method = request.method
     path = request.path
 
-    if path in open_api_list:
+    if path in Config["open_api"]:
         return
 
     app_id = params.get("app_id")
@@ -44,34 +43,34 @@ def before_request_hook():
 
     if not helper.valid_nonce(nonce):
         data = RespData(code=400, message="Illegal nonce").to_json()
-        return Response(status=400, response=data)
+        return MyResponse(status=400, response=data)
     if not helper.valid_timestamp(timestamp):
         data = RespData(code=400, message="Illegal timestamp").to_json()
-        return Response(status=400, response=data)
+        return MyResponse(status=400, response=data)
     if not helper.valid_app_id(app_id):
         data = RespData(code=400, message="Illegal app_id").to_json()
-        return Response(status=400, response=data)
+        return MyResponse(status=400, response=data)
     if not helper.valid_signature(app_id, timestamp, nonce, method, path, sig):
         data = RespData(code=400, message="Illegal signature").to_json()
-        return Response(status=400, response=data)
+        return MyResponse(status=400, response=data)
 
 
 @app.errorhandler(404)
 def page_not_found(e):
     data = RespData(code=404, message="Not Found").to_json()
-    return Response(status=404, response=data)
+    return MyResponse(status=404, response=data)
 
 
 @app.errorhandler(405)
 def method_not_allowed(e):
     data = RespData(code=405, message="Method Not Allowed").to_json()
-    return Response(status=405, response=data)
+    return MyResponse(status=405, response=data)
 
 
 @app.errorhandler(500)
 def server_internal_error(e):
     data = RespData(code=500, message="Internal Server Error").to_json()
-    return Response(status=500, response=data)
+    return MyResponse(status=500, response=data)
 
 
 if __name__ == "__main__":

@@ -1,6 +1,3 @@
-import hashlib
-import hmac
-
 from sqlalchemy import Column, SmallInteger, Integer, BigInteger, String
 
 from db.database import Model
@@ -47,14 +44,6 @@ class UserAuth(Model):
     username = Column(String(128), comment="用户名")
     password = Column(String(128), comment="用户密码")
     verified = Column(SmallInteger, default=0, comment="是否认证过")
-
-    @staticmethod
-    def encrypt_password(password, salt):
-        if isinstance(password, str):
-            password = password.encode("utf8")
-        if isinstance(salt, str):
-            salt = salt.encode("utf8")
-        return hmac.new(salt, password, hashlib.sha256).hexdigest()
 
     def __repr__(self):
         return "UserAuth(uid={},username={})".format(self.uid, self.username)

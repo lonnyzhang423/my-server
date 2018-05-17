@@ -43,6 +43,14 @@ def valid_password(pwd):
     return True if len(pwd) >= 8 else False
 
 
+def encrypt_password(password, salt):
+    if isinstance(password, str):
+        password = password.encode("utf8")
+    if isinstance(salt, str):
+        salt = salt.encode("utf8")
+    return hmac.new(salt, password, hashlib.sha256).hexdigest()
+
+
 def timestamp():
     import time
     return int(time.time() * 1000)
