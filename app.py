@@ -6,6 +6,7 @@ from flask import Flask, request
 import helper
 from api import RespData, MyResponse
 from api.account import *
+from api.location import LocationApi
 from api.toolkit import *
 from config import *
 from db.database import init_db
@@ -22,6 +23,7 @@ app.add_url_rule("/api/toolkit/ip", view_func=IPApi.as_view("ip"))
 app.add_url_rule("/api/toolkit/headers", view_func=HeadersApi.as_view("headers"))
 app.add_url_rule("/api/toolkit/uuid", view_func=UUIDApi.as_view("uuid"))
 app.add_url_rule("/api/toolkit/anything", view_func=AnythingApi.as_view("anything"))
+app.add_url_rule("/api/user/<uid>/location", view_func=LocationApi.as_view("location"))
 
 
 @app.before_request

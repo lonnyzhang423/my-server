@@ -1,8 +1,8 @@
-from sqlalchemy import Column, SmallInteger, Integer, BigInteger, String
+from sqlalchemy import Column, SmallInteger, Integer, BigInteger, String, Numeric
 
 from db.database import Model
 
-__all__ = ["User", "UserAuth", "Oauth"]
+__all__ = ["User", "UserAuth", "Oauth", "UserLocation"]
 
 
 class User(Model):
@@ -60,3 +60,17 @@ class Oauth(Model):
     @staticmethod
     def __repr__(self):
         return "Oauth(uid={},app_id={})".format(self.uid, self.app_id)
+
+
+class UserLocation(Model):
+    __tablename__ = "user_location"
+
+    id = Column(BigInteger, primary_key=True)
+    uid = Column(String(128), comment="用户唯一id")
+    longitude = Column(Numeric(11, 8), comment="经度")
+    latitude = Column(Numeric(10, 8), comment="纬度")
+    timestamp = Column(BigInteger, comment="时间戳")
+
+    @staticmethod
+    def __repr__(self):
+        return "UserLocation(uid={},longitude={},latitude={})".format(self.uid, self.longitude, self.latitude)

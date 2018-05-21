@@ -1,13 +1,12 @@
 import hashlib
 import hmac
 import uuid
-from concurrent.futures import ThreadPoolExecutor
 
 import requests
 
 import helper
 
-host = "http://localhost:5464"
+host = "http://localhost:5000"
 
 
 def common_params(method=None, path=None, app_id="root_app_id", app_secret="root_app_secret"):
@@ -75,12 +74,24 @@ def get_headers():
     print(resp)
 
 
+def post_location():
+    path = "/api/user/751069bc779440f190fd20c6b2cde3cd/location"
+    path.isdigit()
+    url = host + path
+    params = common_params("POST", path)
+    params["uid"] = "751069bc779440f190fd20c6b2cde3cd"
+    params["longitude"] = "123.1231231231"
+    params["latitude"] = "23.11111111"
+    headers = {"Authorization": "Bearer afcd8d2e-9b3d-492a-a7ac-23a13986ff2a"}
+    resp = requests.post(url, data=params, headers=headers).json()
+    print(resp)
+
+
 if __name__ == '__main__':
     # register()
     # login()
     # get_self()
     # update_self()
     # get_self()
-    with ThreadPoolExecutor(max_workers=10) as worker:
-        for i in range(10):
-            worker.submit(get_headers)
+    get_headers()
+    post_location()

@@ -132,7 +132,7 @@ class LogoutApi(BaseMethodView):
 class SelfApi(BaseMethodView):
 
     @helper.login_required
-    def get(self, uid: object = None, access_token=None):
+    def get(self, uid=None, access_token=None):
         """
         获取个人信息
         """
