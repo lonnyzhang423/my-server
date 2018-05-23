@@ -21,11 +21,11 @@ class LocationApi(BaseMethodView):
             lat = float(params.get("latitude"))
         except ValueError:
             data = RespData(code=400, message="illegal longitude or latitude").to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         if not client_uid:
             data = RespData(code=400, message="uid required").to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         if not uid:
             data = RespData(code=401, message="access_token is invalid or out of date").to_json()
@@ -33,7 +33,7 @@ class LocationApi(BaseMethodView):
 
         if uid != client_uid:
             data = RespData(code=400, message="uid mismatch").to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         with session_scope() as session:
             ul = UserLocation()

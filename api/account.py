@@ -28,21 +28,21 @@ class RegisterApi(BaseMethodView):
                 data = RespData(code=400, message="register_type required").to_json()
             else:
                 data = RespData(code=400, message="unsupported register_type:{}".format(rt)).to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         if not helper.valid_phone(username):
             data = RespData(code=400, message="illegal phone num").to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         if not helper.valid_password(password):
             data = RespData(code=400, message="illegal password").to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         with session_scope() as session:
             ua = session.query(UserAuth).filter(UserAuth.username == username).first()
             if ua:
                 data = RespData(code=400, message="username:{} already exists".format(username)).to_json()
-                return MyResponse(status=400, response=data)
+                return MyResponse(response=data)
 
             uid = helper.random_uid()
             salt = helper.salt_from_uid(uid)
@@ -71,21 +71,21 @@ class LoginApi(BaseMethodView):
                 data = RespData(code=400, message="register_type required").to_json()
             else:
                 data = RespData(code=400, message="unsupported login_type:{}".format(gt)).to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         if not helper.valid_phone(username):
             data = RespData(code=400, message="illegal phone num").to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         if not helper.valid_password(password):
             data = RespData(code=400, message="illegal password").to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         with session_scope() as session:
             ua = session.query(UserAuth).filter(UserAuth.username == username).first()
             if ua is None:
                 data = RespData(code=400, message="username or password is wrong").to_json()
-                return MyResponse(status=400, response=data)
+                return MyResponse(response=data)
 
         uid = ua.uid
         correct = ua.password
@@ -95,7 +95,7 @@ class LoginApi(BaseMethodView):
 
         if encrypted != correct:
             data = RespData(code=400, message="username or password is wrong").to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         token = helper.random_token()
         expires_in = Config["token_expires_in_ms"]
@@ -118,10 +118,10 @@ class LogoutApi(BaseMethodView):
         client_uid = params.get("uid")
         if not client_uid:
             data = RespData(code=400, message="uid required").to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
         if client_uid != uid:
             data = RespData(code=400, message="uid required").to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         RedisCache.delete(access_token)
         data = RespData(code=200, message="logout success uid:{}".format(uid)).to_json()
@@ -141,11 +141,11 @@ class SelfApi(BaseMethodView):
 
         if not client_uid:
             data = RespData(code=400, message="uid required").to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         if uid != client_uid:
             data = RespData(code=400, message="uid mismatch").to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         with session_scope() as session:
             target = session.query(User).filter(User.uid == uid).first()
@@ -169,7 +169,7 @@ class SelfApi(BaseMethodView):
 
         if not client_uid:
             data = RespData(code=400, message="uid required").to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         if not uid:
             data = RespData(code=401, message="access_token is invalid or out of date").to_json()
@@ -177,7 +177,7 @@ class SelfApi(BaseMethodView):
 
         if uid != client_uid:
             data = RespData(code=400, message="uid mismatch").to_json()
-            return MyResponse(status=400, response=data)
+            return MyResponse(response=data)
 
         with session_scope() as session:
             target = session.query(User).filter(User.uid == uid).first()

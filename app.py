@@ -45,16 +45,16 @@ def before_request_hook():
 
     if not helper.valid_nonce(nonce):
         data = RespData(code=400, message="Illegal nonce").to_json()
-        return MyResponse(status=400, response=data)
+        return MyResponse(response=data)
     if not helper.valid_timestamp(timestamp):
         data = RespData(code=400, message="Illegal timestamp").to_json()
-        return MyResponse(status=400, response=data)
+        return MyResponse(response=data)
     if not helper.valid_app_id(app_id):
         data = RespData(code=400, message="Illegal app_id").to_json()
-        return MyResponse(status=400, response=data)
+        return MyResponse(response=data)
     if not helper.valid_signature(app_id, timestamp, nonce, method, path, sig):
         data = RespData(code=400, message="Illegal signature").to_json()
-        return MyResponse(status=400, response=data)
+        return MyResponse(response=data)
 
 
 @app.errorhandler(404)
