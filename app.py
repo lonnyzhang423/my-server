@@ -7,9 +7,9 @@ import helper
 from api import RespData, MyResponse
 from api.account import *
 from api.location import LocationApi
-from api.toolkit import *
 from config import *
 from db.database import init_db
+from toolkit import toolkit
 
 init_db()
 app = Flask(__name__)
@@ -19,11 +19,9 @@ app.add_url_rule("/api/register", view_func=RegisterApi.as_view("register"))
 app.add_url_rule("/api/login", view_func=LoginApi.as_view("login"))
 app.add_url_rule("/api/logout", view_func=LogoutApi.as_view("logout"))
 app.add_url_rule("/api/self", view_func=SelfApi.as_view("self"))
-app.add_url_rule("/api/toolkit/ip", view_func=IPApi.as_view("ip"))
-app.add_url_rule("/api/toolkit/headers", view_func=HeadersApi.as_view("headers"))
-app.add_url_rule("/api/toolkit/uuid", view_func=UUIDApi.as_view("uuid"))
-app.add_url_rule("/api/toolkit/anything", view_func=AnythingApi.as_view("anything"))
 app.add_url_rule("/api/user/<uid>/location", view_func=LocationApi.as_view("location"))
+
+app.register_blueprint(toolkit, url_prefix="/api/toolkit")
 
 
 @app.before_request

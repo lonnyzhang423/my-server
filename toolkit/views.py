@@ -2,7 +2,7 @@ import uuid
 
 from flask import request
 
-from api import *
+from api import BaseMethodView, RespData, MyResponse
 
 __all__ = ["IPApi", "UUIDApi", "HeadersApi", "AnythingApi"]
 
