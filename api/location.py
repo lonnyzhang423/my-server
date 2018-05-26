@@ -15,8 +15,8 @@ class LocationApi(BaseMethodView):
         params = request.form
         client_uid = params.get("uid")
 
-        ts = int(params.get("timestamp"))
         try:
+            ts = int(params.get("timestamp"))
             lng = float(params.get("longitude"))
             lat = float(params.get("latitude"))
         except ValueError:
@@ -45,3 +45,24 @@ class LocationApi(BaseMethodView):
 
         data = RespData(code=200, message="success").to_json()
         return MyResponse(response=data)
+
+    @helper.login_required
+    def get(self, uid=None, access_token=None):
+        params = request.values
+        client_uid = params.get("uid")
+
+        if not client_uid:
+            data = RespData(code=400, message="uid required").to_json()
+            return MyResponse(response=data)
+        if not uid:
+            data = RespData(code=401, message="access_token is invalid or out of date").to_json()
+            return MyResponse(status=401, response=data)
+        if uid != client_uid:
+            data = RespData(code=400, message="uid mismatch").to_json()
+            return MyResponse(response=data)
+
+        with session_scope() as session:
+            result = session.query(UserLocation).filter(UserLocation.uid == uid)
+            result = [ul for ul in result]
+            data = RespData(code=200, message="success", data=result).to_json()
+            return MyResponse(response=data)

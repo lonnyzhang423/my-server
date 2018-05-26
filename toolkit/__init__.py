@@ -3,6 +3,7 @@ from flask import Blueprint
 from toolkit.views import *
 
 __all__ = ["toolkit", ]
+
 toolkit = Blueprint("toolkit", __name__)
 
 toolkit.add_url_rule("/ip", view_func=IPApi.as_view("ip"))
