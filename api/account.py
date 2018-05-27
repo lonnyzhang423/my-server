@@ -115,13 +115,6 @@ class LogoutApi(BaseMethodView):
         退出登录
         """
         params = request.form
-        client_uid = params.get("uid")
-        if not client_uid:
-            data = RespData(code=400, message="uid required").to_json()
-            return MyResponse(response=data)
-        if client_uid != uid:
-            data = RespData(code=400, message="uid required").to_json()
-            return MyResponse(response=data)
 
         RedisCache.delete(access_token)
         data = RespData(code=200, message="logout success uid:{}".format(uid)).to_json()
@@ -137,15 +130,6 @@ class SelfApi(BaseMethodView):
         获取个人信息
         """
         params = request.args
-        client_uid = params.get("uid")
-
-        if not client_uid:
-            data = RespData(code=400, message="uid required").to_json()
-            return MyResponse(response=data)
-
-        if uid != client_uid:
-            data = RespData(code=400, message="uid mismatch").to_json()
-            return MyResponse(response=data)
 
         with session_scope() as session:
             target = session.query(User).filter(User.uid == uid).first()
@@ -162,22 +146,13 @@ class SelfApi(BaseMethodView):
         更新个人信息
         """
         params = request.form
-        client_uid = params.get("uid")
         nickname = params.get("nickname")
         gender = params.get("gender")
         headline = params.get("headline")
 
-        if not client_uid:
-            data = RespData(code=400, message="uid required").to_json()
-            return MyResponse(response=data)
-
         if not uid:
             data = RespData(code=401, message="access_token is invalid or out of date").to_json()
             return MyResponse(status=401, response=data)
-
-        if uid != client_uid:
-            data = RespData(code=400, message="uid mismatch").to_json()
-            return MyResponse(response=data)
 
         with session_scope() as session:
             target = session.query(User).filter(User.uid == uid).first()
