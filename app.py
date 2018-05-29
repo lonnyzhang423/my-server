@@ -42,16 +42,16 @@ def before_request_hook():
     sig = params.get("signature")
 
     if not helper.valid_nonce(nonce):
-        data = RespData(code=400, message="Illegal nonce").to_json()
+        data = RespData(code=400, message="随机数不合法").to_json()
         return MyResponse(response=data)
     if not helper.valid_timestamp(timestamp):
-        data = RespData(code=400, message="Illegal timestamp").to_json()
+        data = RespData(code=400, message="时间戳不合法").to_json()
         return MyResponse(response=data)
     if not helper.valid_app_id(app_id):
-        data = RespData(code=400, message="Illegal app_id").to_json()
+        data = RespData(code=400, message="应用id不合法").to_json()
         return MyResponse(response=data)
     if not helper.valid_signature(app_id, timestamp, nonce, method, path, sig):
-        data = RespData(code=400, message="Illegal signature").to_json()
+        data = RespData(code=400, message="签名参数不合法").to_json()
         return MyResponse(response=data)
 
 

@@ -19,12 +19,8 @@ class LocationApi(BaseMethodView):
             lng = float(params.get("longitude"))
             lat = float(params.get("latitude"))
         except ValueError:
-            data = RespData(code=400, message="illegal longitude or latitude").to_json()
+            data = RespData(code=400, message="经纬度不合法").to_json()
             return MyResponse(response=data)
-
-        if not uid:
-            data = RespData(code=401, message="access_token is invalid or out of date").to_json()
-            return MyResponse(status=401, response=data)
 
         with session_scope() as session:
             ul = UserLocation()
@@ -34,19 +30,13 @@ class LocationApi(BaseMethodView):
             ul.timestamp = ts
             session.add(ul)
 
-        data = RespData(code=200, message="success").to_json()
+        data = RespData(code=200, message="成功").to_json()
         return MyResponse(response=data)
 
     @helper.login_required
     def get(self, uid=None, access_token=None):
-        params = request.values
-
-        if not uid:
-            data = RespData(code=401, message="access_token is invalid or out of date").to_json()
-            return MyResponse(status=401, response=data)
-
         with session_scope() as session:
             result = session.query(UserLocation).filter(UserLocation.uid == uid)
             result = [ul for ul in result]
-            data = RespData(code=200, message="success", data=result).to_json()
+            data = RespData(code=200, message="成功", data=result).to_json()
             return MyResponse(response=data)

@@ -25,23 +25,23 @@ class RegisterApi(BaseMethodView):
 
         if rt not in self.RT:
             if rt is None:
-                data = RespData(code=400, message="register_type required").to_json()
+                data = RespData(code=400, message="缺少注册类型").to_json()
             else:
-                data = RespData(code=400, message="unsupported register_type:{}".format(rt)).to_json()
+                data = RespData(code=400, message="不支持:{}注册类型".format(rt)).to_json()
             return MyResponse(response=data)
 
         if not helper.valid_phone(username):
-            data = RespData(code=400, message="illegal phone num").to_json()
+            data = RespData(code=400, message="手机号不合法").to_json()
             return MyResponse(response=data)
 
         if not helper.valid_password(password):
-            data = RespData(code=400, message="illegal password").to_json()
+            data = RespData(code=400, message="密码不合法").to_json()
             return MyResponse(response=data)
 
         with session_scope() as session:
             ua = session.query(UserAuth).filter(UserAuth.username == username).first()
             if ua:
-                data = RespData(code=400, message="username:{} already exists".format(username)).to_json()
+                data = RespData(code=400, message="用户名:{}已存在".format(username)).to_json()
                 return MyResponse(response=data)
 
             uid = helper.random_uid()
@@ -52,7 +52,7 @@ class RegisterApi(BaseMethodView):
             user_auth = UserAuth(uid=uid, register_type=rt, username=username, password=encrypted)
             session.add(user)
             session.add(user_auth)
-        data = RespData(code=200, message="register success", data={"uid": uid}).to_json()
+        data = RespData(code=200, message="注册成功", data={"uid": uid}).to_json()
         return MyResponse(response=data)
 
 
@@ -68,23 +68,23 @@ class LoginApi(BaseMethodView):
 
         if gt not in RegisterApi.RT:
             if gt is None:
-                data = RespData(code=400, message="register_type required").to_json()
+                data = RespData(code=400, message="缺少注册类型").to_json()
             else:
-                data = RespData(code=400, message="unsupported login_type:{}".format(gt)).to_json()
+                data = RespData(code=400, message="不支持:{}注册类型}".format(gt)).to_json()
             return MyResponse(response=data)
 
         if not helper.valid_phone(username):
-            data = RespData(code=400, message="illegal phone num").to_json()
+            data = RespData(code=400, message="手机号不合法").to_json()
             return MyResponse(response=data)
 
         if not helper.valid_password(password):
-            data = RespData(code=400, message="illegal password").to_json()
+            data = RespData(code=400, message="密码不合法").to_json()
             return MyResponse(response=data)
 
         with session_scope() as session:
             ua = session.query(UserAuth).filter(UserAuth.username == username).first()
             if ua is None:
-                data = RespData(code=400, message="username or password is wrong").to_json()
+                data = RespData(code=400, message="用户名或密码错误").to_json()
                 return MyResponse(response=data)
 
         uid = ua.uid
@@ -94,14 +94,14 @@ class LoginApi(BaseMethodView):
         encrypted = helper.encrypt_password(password, salt)
 
         if encrypted != correct:
-            data = RespData(code=400, message="username or password is wrong").to_json()
+            data = RespData(code=400, message="用户名或密码错误").to_json()
             return MyResponse(response=data)
 
         token = helper.random_token()
         expires_in = Config["token_expires_in_ms"]
         RedisCache.set(name=token, value=uid, ex=expires_in // 1000)
 
-        data = RespData(code=200, message="login success",
+        data = RespData(code=200, message="登录成功",
                         data={"uid": uid, "access_token": token, "token_type": "Bearer",
                               "expires_in": expires_in}).to_json()
         return MyResponse(response=data)
@@ -114,10 +114,8 @@ class LogoutApi(BaseMethodView):
         """
         退出登录
         """
-        params = request.form
-
         RedisCache.delete(access_token)
-        data = RespData(code=200, message="logout success uid:{}".format(uid)).to_json()
+        data = RespData(code=200, message="登出成功").to_json()
         return MyResponse(response=data)
 
 
@@ -129,16 +127,14 @@ class SelfApi(BaseMethodView):
         """
         获取个人信息
         """
-        params = request.args
-
         with session_scope() as session:
             target = session.query(User).filter(User.uid == uid).first()
             if target:
-                data = RespData(code=200, data=target.to_dict()).to_json()
+                data = RespData(code=200, message="成功", data=target.to_dict()).to_json()
                 return MyResponse(response=data)
             else:
-                data = RespData(code=500, message="Internal Server Error").to_json()
-                return MyResponse(status=500, response=data)
+                data = RespData(code=400, message="未获取到用户信息").to_json()
+                return MyResponse(response=data)
 
     @helper.login_required
     def put(self, uid=None, access_token=None):
@@ -150,21 +146,17 @@ class SelfApi(BaseMethodView):
         gender = params.get("gender")
         headline = params.get("headline")
 
-        if not uid:
-            data = RespData(code=401, message="access_token is invalid or out of date").to_json()
-            return MyResponse(status=401, response=data)
-
         with session_scope() as session:
             target = session.query(User).filter(User.uid == uid).first()
             if target:
                 target.nickname = nickname
                 target.gender = gender
                 target.headline = headline
-                data = RespData(code=200, message="update success", data=target.to_dict()).to_json()
+                data = RespData(code=200, message="更新成功", data=target.to_dict()).to_json()
                 return MyResponse(response=data)
             else:
-                data = RespData(code=500, message="Internal Server Error").to_json()
-                return MyResponse(status=500, response=data)
+                data = RespData(code=400, message="更新失败：未查询到用户信息").to_json()
+                return MyResponse(response=data)
 
 
 class PasswordApi(BaseMethodView):
