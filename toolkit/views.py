@@ -3,8 +3,10 @@ import uuid
 from flask import request
 
 from api import BaseMethodView, RespData, MyResponse
+from toolkit.captcha import predict_captcha
+from toolkit.captcha.config import INVALID_CAPTCHA
 
-__all__ = ["IPApi", "UUIDApi", "HeadersApi", "AnythingApi"]
+__all__ = ["IPApi", "UUIDApi", "HeadersApi", "AnythingApi", "CaptchaApi"]
 
 
 class IPApi(BaseMethodView):
@@ -68,3 +70,20 @@ class AnythingApi(BaseMethodView):
                               "resp_headers": resp_headers}).to_json()
         resp.data = data
         return resp
+
+
+class CaptchaApi(BaseMethodView):
+
+    def post(self):
+        args = request.form
+        img = args.get("img_base64", "")
+        if not img:
+            data = RespData(code=400, message="img_base64 required").to_json()
+            return MyResponse(response=data)
+
+        text = predict_captcha(img)
+        if text == INVALID_CAPTCHA:
+            data = RespData(code=400, message="illegal img_base64").to_json()
+        else:
+            data = RespData(code=200, message="success", data={"predict": text}).to_json()
+        return MyResponse(response=data)
