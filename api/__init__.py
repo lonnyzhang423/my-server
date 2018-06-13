@@ -28,9 +28,9 @@ class RespData:
 
     def to_dict(self):
         d = {"code": self.code}
-        if self.data:
+        if self.data is not None:
             d["data"] = self.data
-        if self.message:
+        if self.message is not None:
             d["message"] = self.message
         return d
 

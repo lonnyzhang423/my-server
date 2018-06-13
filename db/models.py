@@ -2,7 +2,7 @@ from sqlalchemy import Column, SmallInteger, Integer, BigInteger, String, Numeri
 
 from db.database import Model
 
-__all__ = ["User", "UserAuth", "Oauth", "UserLocation"]
+__all__ = ["User", "UserAuth", "Oauth", "UserLocation", "Movie"]
 
 
 class User(Model):
@@ -57,7 +57,6 @@ class Oauth(Model):
     app_id = Column(String(128), comment="授权id")
     app_secret = Column(String(128), comment="授权secret")
 
-    @staticmethod
     def __repr__(self):
         return "Oauth(uid={},app_id={})".format(self.uid, self.app_id)
 
@@ -71,6 +70,32 @@ class UserLocation(Model):
     latitude = Column(Numeric(10, 8), comment="纬度")
     timestamp = Column(BigInteger, comment="时间戳")
 
-    @staticmethod
     def __repr__(self):
         return "UserLocation(uid={},longitude={},latitude={})".format(self.uid, self.longitude, self.latitude)
+
+
+class Movie(Model):
+    __tablename__ = "movie"
+
+    id = Column(BigInteger, primary_key=True)
+    mid = Column(String(128), comment="电影唯一id")
+    title = Column(String(128), comment="中文名称")
+    original_title = Column(String(128), comment="原名")
+    year = Column(String(32), comment="年代")
+    publish_date = Column(String(64), comment="上映时间")
+    description = Column(String(128), comment="描述")
+    category = Column(String(32), comment="类别")
+
+    def to_dict(self):
+        return {
+            "mid": self.mid,
+            "title": self.title,
+            "original_title": self.original_title,
+            "year": self.year,
+            "publish_date": self.publish_date,
+            "description": self.description,
+            "category": self.category
+        }
+
+    def __repr__(self):
+        return "Movie(mid={},title={})".format(self.mid, self.title)

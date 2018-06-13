@@ -3,10 +3,12 @@ import uuid
 from flask import request
 
 from api import BaseMethodView, RespData, MyResponse
+from db.database import session_scope
+from db.models import Movie
 from open.captcha import predict_captcha
 from open.captcha.config import INVALID_CAPTCHA
 
-__all__ = ["IPApi", "UUIDApi", "HeadersApi", "AnythingApi", "CaptchaApi"]
+__all__ = ["IPApi", "UUIDApi", "HeadersApi", "AnythingApi", "CaptchaApi", "MovieApi"]
 
 
 class IPApi(BaseMethodView):
@@ -86,4 +88,18 @@ class CaptchaApi(BaseMethodView):
             data = RespData(code=400, message="illegal img_base64").to_json()
         else:
             data = RespData(code=200, message="success", data={"predict": text}).to_json()
+        return MyResponse(response=data)
+
+
+class MovieApi(BaseMethodView):
+
+    def get(self):
+        args = request.args
+        offset = min(int(args.get("offset", 0)), 1000)
+        limit = min(int(args.get("limit", 20)), 50)
+
+        with session_scope() as session:
+            query = session.query(Movie).limit(limit).offset(offset)
+        movies = [movie.to_dict() for movie in query]
+        data = RespData(code=200, message="success", data=movies).to_json()
         return MyResponse(response=data)
