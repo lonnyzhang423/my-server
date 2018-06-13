@@ -3,8 +3,8 @@ import os
 import numpy as np
 import tensorflow as tf
 
-from toolkit.captcha.config import *
-from toolkit.captcha.utils import checkpoints_dir, img2array, vector2text
+from open.captcha.config import *
+from open.captcha.utils import checkpoints_dir, img2array, vector2text
 
 __all__ = ["predict_captcha", ]
 

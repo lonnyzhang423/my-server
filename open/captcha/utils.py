@@ -5,7 +5,7 @@ import os
 import numpy as np
 from PIL import Image
 
-from toolkit.captcha.config import *
+from open.captcha.config import *
 
 __all__ = ["text2vector", "vector2text", "img2array",
            "checkpoints_dir", "InvalidCaptchaError"]

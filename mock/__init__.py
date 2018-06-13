@@ -68,7 +68,7 @@ def get_self():
 
 
 def get_headers():
-    path = "/api/toolkit/anything"
+    path = "/api/open/anything"
     url = host + path
     resp = requests.get(url).json()
     print(resp)
@@ -88,10 +88,5 @@ def post_location():
 
 
 if __name__ == '__main__':
-    # register()
-    # login()
-    # get_self()
-    # update_self()
-    # get_self()
     get_headers()
     post_location()

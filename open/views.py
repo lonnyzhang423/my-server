@@ -3,8 +3,8 @@ import uuid
 from flask import request
 
 from api import BaseMethodView, RespData, MyResponse
-from toolkit.captcha import predict_captcha
-from toolkit.captcha.config import INVALID_CAPTCHA
+from open.captcha import predict_captcha
+from open.captcha.config import INVALID_CAPTCHA
 
 __all__ = ["IPApi", "UUIDApi", "HeadersApi", "AnythingApi", "CaptchaApi"]
 

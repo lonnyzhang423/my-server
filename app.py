@@ -9,7 +9,7 @@ from api.account import *
 from api.location import LocationApi
 from config import *
 from db.database import init_db
-from toolkit import toolkit
+from open import toolkit
 
 init_db()
 app = Flask(__name__)
@@ -21,7 +21,7 @@ app.add_url_rule("/api/logout", view_func=LogoutApi.as_view("logout"))
 app.add_url_rule("/api/self", view_func=SelfApi.as_view("self"))
 app.add_url_rule("/api/user/<uid>/location", view_func=LocationApi.as_view("location"))
 
-app.register_blueprint(toolkit, url_prefix="/api/toolkit")
+app.register_blueprint(toolkit, url_prefix="/api/open")
 
 
 @app.before_request
@@ -33,8 +33,9 @@ def before_request_hook():
     method = request.method
     path = request.path
 
-    if path in Config["open_api"]:
-        return
+    for api in Config['open_api']:
+        if api in path:
+            return
 
     app_id = params.get("app_id")
     timestamp = params.get("timestamp")
