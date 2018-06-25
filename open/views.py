@@ -96,10 +96,10 @@ class MovieApi(BaseMethodView):
     def get(self):
         args = request.args
         offset = min(int(args.get("offset", 0)), 1000)
-        limit = min(int(args.get("limit", 20)), 50)
+        limit = min(int(args.get("limit", 20)), 40)
 
         with session_scope() as session:
             query = session.query(Movie).limit(limit).offset(offset)
-        movies = [movie.to_dict() for movie in query]
-        data = RespData(code=200, message="success", data=movies).to_json()
-        return MyResponse(response=data)
+            movies = [movie.to_dict() for movie in query]
+            data = RespData(code=200, message="success", data=movies).to_json()
+            return MyResponse(response=data)

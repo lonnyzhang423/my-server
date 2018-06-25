@@ -1,3 +1,4 @@
+import decimal
 import json
 
 from flask import Response
@@ -35,7 +36,7 @@ class RespData:
         return d
 
     def to_json(self):
-        return json.dumps(self.to_dict())
+        return json.dumps(self.to_dict(), cls=DecimalEncoder)
 
     def __repr__(self):
         return str(self.to_dict())
@@ -43,3 +44,10 @@ class RespData:
 
 class MyResponse(Response):
     default_mimetype = "application/json"
+
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return float(o)
+        return super(DecimalEncoder, self).default(o)

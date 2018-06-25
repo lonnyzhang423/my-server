@@ -75,27 +75,40 @@ class UserLocation(Model):
 
 
 class Movie(Model):
-    __tablename__ = "movie"
+    __tablename__ = "movie_top250"
 
     id = Column(BigInteger, primary_key=True)
-    mid = Column(String(128), comment="电影唯一id")
     title = Column(String(128), comment="中文名称")
     original_title = Column(String(128), comment="原名")
+    directors = Column(String(128), comment="导演")
+    casts = Column(String(128), comment="主演")
     year = Column(String(32), comment="年代")
-    publish_date = Column(String(64), comment="上映时间")
-    description = Column(String(128), comment="描述")
-    category = Column(String(32), comment="类别")
+    genres = Column(String(32), comment="类别")
+    image = Column(String(128), comment="封面地址")
+    rating = Column(Numeric(3, 1), comment="评分")
+
+    def __init__(self, title, original_title, directors, casts, year, genres, image, rating):
+        self.title = title
+        self.original_title = original_title
+        self.directors = directors
+        self.casts = casts
+        self.year = year
+        self.genres = genres
+        self.image = image
+        self.rating = rating
 
     def to_dict(self):
         return {
-            "mid": self.mid,
+            "id": self.id,
             "title": self.title,
             "original_title": self.original_title,
+            "directors": self.directors,
+            "casts": self.casts,
             "year": self.year,
-            "publish_date": self.publish_date,
-            "description": self.description,
-            "category": self.category
+            "image": self.image,
+            "rating": self.rating,
+            "genres": self.genres
         }
 
     def __repr__(self):
-        return "Movie(mid={},title={})".format(self.mid, self.title)
+        return "Movie(id={},title={})".format(self.id, self.title)
