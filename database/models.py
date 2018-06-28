@@ -1,11 +1,11 @@
 from sqlalchemy import Column, SmallInteger, Integer, BigInteger, String, Numeric
 
-from db.database import Model
+from database import db
 
 __all__ = ["User", "UserAuth", "Oauth", "UserLocation", "Movie"]
 
 
-class User(Model):
+class User(db.Model):
     __tablename__ = 'user'
 
     id = Column(BigInteger, primary_key=True)
@@ -35,7 +35,7 @@ class User(Model):
         return "User(uid={},name={})".format(self.uid, self.nickname)
 
 
-class UserAuth(Model):
+class UserAuth(db.Model):
     __tablename__ = "user_auth"
 
     id = Column(BigInteger, primary_key=True)
@@ -49,7 +49,7 @@ class UserAuth(Model):
         return "UserAuth(uid={},username={})".format(self.uid, self.username)
 
 
-class Oauth(Model):
+class Oauth(db.Model):
     __tablename__ = "oauth"
 
     id = Column(BigInteger, primary_key=True)
@@ -61,7 +61,7 @@ class Oauth(Model):
         return "Oauth(uid={},app_id={})".format(self.uid, self.app_id)
 
 
-class UserLocation(Model):
+class UserLocation(db.Model):
     __tablename__ = "user_location"
 
     id = Column(BigInteger, primary_key=True)
@@ -74,7 +74,7 @@ class UserLocation(Model):
         return "UserLocation(uid={},longitude={},latitude={})".format(self.uid, self.longitude, self.latitude)
 
 
-class Movie(Model):
+class Movie(db.Model):
     __tablename__ = "movie_top250"
 
     id = Column(BigInteger, primary_key=True)

@@ -3,8 +3,8 @@ from flask import request
 import helper
 from api import *
 from config import *
-from db.database import RedisCache, session_scope
-from db.models import *
+from database import db, session_scope
+from database.models import *
 
 __all__ = ["RegisterApi", "LoginApi", "LogoutApi", "SelfApi", "PasswordApi"]
 
@@ -99,7 +99,7 @@ class LoginApi(BaseMethodView):
 
         token = helper.random_token()
         expires_in = Config["token_expires_in_ms"]
-        RedisCache.set(name=token, value=uid, ex=expires_in // 1000)
+        db.RedisCache.set(name=token, value=uid, ex=expires_in // 1000)
 
         data = RespData(code=200, message="登录成功",
                         data={"uid": uid, "access_token": token, "token_type": "Bearer",
@@ -114,7 +114,7 @@ class LogoutApi(BaseMethodView):
         """
         退出登录
         """
-        RedisCache.delete(access_token)
+        db.RedisCache.delete(access_token)
         data = RespData(code=200, message="登出成功").to_json()
         return MyResponse(response=data)
 

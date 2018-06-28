@@ -7,11 +7,11 @@ import helper
 from api import RespData, MyResponse
 from api.account import *
 from api.location import LocationApi
-from config import *
-from db.database import init_db
-from open import toolkit
+from config import Config
+from database import db
+from open import openapi
 
-init_db()
+db.init_tables()
 app = Flask(__name__)
 app.response_class = MyResponse
 
@@ -21,7 +21,7 @@ app.add_url_rule("/api/logout", view_func=LogoutApi.as_view("logout"))
 app.add_url_rule("/api/self", view_func=SelfApi.as_view("self"))
 app.add_url_rule("/api/user/<uid>/location", view_func=LocationApi.as_view("location"))
 
-app.register_blueprint(toolkit, url_prefix="/api/open")
+app.register_blueprint(openapi, url_prefix="/api/open")
 
 
 @app.before_request

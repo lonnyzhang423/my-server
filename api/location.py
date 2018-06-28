@@ -2,8 +2,8 @@ from flask import request
 
 import helper
 from api import *
-from db.database import session_scope
-from db.models import UserLocation
+from database import session_scope
+from database.models import UserLocation
 
 __all__ = ["LocationApi", ]
 

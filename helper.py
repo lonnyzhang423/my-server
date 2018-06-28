@@ -11,8 +11,8 @@ from flask import request, Response
 
 from api import RespData
 from config import Config
-from db.database import RedisCache, session_scope
-from db.models import Oauth
+from database import db, session_scope
+from database.models import Oauth
 
 __all__ = ["salt_from_uid", "random_token", "random_uid", "valid_app_id", "valid_signature",
            "login_required", "valid_timestamp", "valid_phone", "valid_password", "common_logger",
@@ -75,9 +75,9 @@ def valid_app_id(app_id):
 # noinspection PyBroadException
 def valid_nonce(nonce):
     try:
-        exists = RedisCache.exists(nonce)
+        exists = db.RedisCache.exists(nonce)
         gap = Config["request_gap_between_cs"]
-        RedisCache.set(nonce, nonce, ex=gap // 1000)
+        db.RedisCache.set(nonce, nonce, ex=gap // 1000)
         return not exists
     except BaseException:
         return False
@@ -123,7 +123,7 @@ def login_required(func):
             auth = request.headers.get("Authorization")
             if auth and isinstance(auth, str):
                 token_type, access_token = auth.split(" ")
-                uid = RedisCache.get(access_token)
+                uid = db.RedisCache.get(access_token)
                 if uid:
                     kwargs["uid"] = uid
                     kwargs["access_token"] = access_token

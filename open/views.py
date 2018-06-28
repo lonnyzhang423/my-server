@@ -3,8 +3,8 @@ import uuid
 from flask import request
 
 from api import BaseMethodView, RespData, MyResponse
-from db.database import session_scope
-from db.models import Movie
+from database import session_scope
+from database.models import Movie
 from open.captcha import predict_captcha
 from open.captcha.config import INVALID_CAPTCHA
 

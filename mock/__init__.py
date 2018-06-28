@@ -23,7 +23,7 @@ def register():
     url = host + path
     params = common_params("POST", path)
     params["register_type"] = "phone"
-    params["username"] = "18899990000"
+    params["username"] = "18899910000"
     params["password"] = "password"
     resp = requests.post(url, data=params, timeout=3).json()
     print(resp)
@@ -74,6 +74,13 @@ def get_headers():
     print(resp)
 
 
+def get_movies():
+    path = "/api/open/movies"
+    url = host + path
+    resp = requests.get(url).json()
+    print(resp)
+
+
 def post_location():
     path = "/api/user/751069bc779440f190fd20c6b2cde3cd/location"
     path.isdigit()
@@ -88,5 +95,8 @@ def post_location():
 
 
 if __name__ == '__main__':
-    get_headers()
-    post_location()
+    from concurrent.futures import ThreadPoolExecutor
+
+    with ThreadPoolExecutor(max_workers=100) as worker:
+        for i in range(100):
+            worker.submit(get_movies)

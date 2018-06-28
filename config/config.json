@@ -1,7 +1,9 @@
 {
   "database": {
     "sqlalchemy.url": "mysql+mysqlconnector://user:password@localhost:3306/my_server",
-    "sqlalchemy.echo": true
+    "sqlalchemy.echo": true,
+    "sqlalchemy.pool_size": 100,
+    "sqlalchemy.pool_timeout": 30
   },
   "redis": {
   },

@@ -1,7 +1,7 @@
 import requests
 
-from db.database import init_db, session_scope
-from db.models import Movie
+from database import db, session_scope
+from database.models import Movie
 
 
 def compose_movie(item):
@@ -17,20 +17,19 @@ def compose_movie(item):
 
 
 def start():
-    init_db()
+    db.init_tables()
 
-    session = requests.session()
-    start = 0
+    offset = 0
     count = 20
-    while start < 250:
-        url = "https://api.douban.com/v2/movie/top250?start={}&count={}".format(start, count)
+    while offset < 250:
+        url = "https://api.douban.com/v2/movie/top250?start={}&count={}".format(offset, count)
         print(url)
-        resp = session.get(url).json()
+        resp = requests.get(url).json()
         for item in resp["subjects"]:
             m = compose_movie(item)
             with session_scope() as session:
                 session.add(m)
-        start += count
+        offset += count
 
 
 if __name__ == '__main__':
