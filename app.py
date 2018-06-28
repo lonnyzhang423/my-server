@@ -5,22 +5,20 @@ from flask import Flask, request
 
 import helper
 from api import RespData, MyResponse
-from api.account import *
-from api.location import LocationApi
+from api.account import account
+from api.admin import admin
+from api.location import location
+from api.open import openapi
 from config import Config
 from database import db
-from open import openapi
 
 db.init_tables()
 app = Flask(__name__)
 app.response_class = MyResponse
 
-app.add_url_rule("/api/register", view_func=RegisterApi.as_view("register"))
-app.add_url_rule("/api/login", view_func=LoginApi.as_view("login"))
-app.add_url_rule("/api/logout", view_func=LogoutApi.as_view("logout"))
-app.add_url_rule("/api/self", view_func=SelfApi.as_view("self"))
-app.add_url_rule("/api/user/<uid>/location", view_func=LocationApi.as_view("location"))
-
+app.register_blueprint(account, url_prefix="/api")
+app.register_blueprint(admin, url_prefix="/api/admin")
+app.register_blueprint(location, url_prefix="/api/user/<uid>")
 app.register_blueprint(openapi, url_prefix="/api/open")
 
 

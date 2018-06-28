@@ -1,4 +1,5 @@
-from sqlalchemy import Column, SmallInteger, Integer, BigInteger, String, Numeric
+from sqlalchemy import Column, SmallInteger, Integer, BigInteger, \
+    String, Numeric, Date, Text
 
 from database import db
 
@@ -11,7 +12,7 @@ class User(db.Model):
     id = Column(BigInteger, primary_key=True)
     uid = Column(String(128), comment="用户唯一id")
     nickname = Column(String(128), comment="昵称")
-    gender = Column(SmallInteger, comment="性别，0:女 1:男")
+    gender = Column(SmallInteger, comment="性别，1:男，2:女 ", default=0)
     avatar = Column(String(128), comment="头像地址")
     birthday = Column(Integer, comment="生日")
     headline = Column(String(256), comment="简介")
@@ -77,7 +78,7 @@ class UserLocation(db.Model):
 class Movie(db.Model):
     __tablename__ = "movie_top250"
 
-    id = Column(BigInteger, primary_key=True)
+    id = Column(Integer, primary_key=True)
     title = Column(String(128), comment="中文名称")
     original_title = Column(String(128), comment="原名")
     directors = Column(String(128), comment="导演")
@@ -87,7 +88,8 @@ class Movie(db.Model):
     image = Column(String(128), comment="封面地址")
     rating = Column(Numeric(3, 1), comment="评分")
 
-    def __init__(self, title, original_title, directors, casts, year, genres, image, rating):
+    def __init__(self, title, original_title, directors, casts, year, genres, image, rating, **kwargs):
+        super(Movie, self).__init__(**kwargs)
         self.title = title
         self.original_title = original_title
         self.directors = directors
@@ -112,3 +114,52 @@ class Movie(db.Model):
 
     def __repr__(self):
         return "Movie(id={},title={})".format(self.id, self.title)
+
+
+class Admin(db.Model):
+    __tablename__ = "admin"
+
+    id = Column(Integer, primary_key=True)
+    uid = Column(String(128), comment="唯一id")
+    username = Column(String(128), comment="用户名")
+    password = Column(String(128), comment="密码")
+
+    def to_dict(self):
+        result = {"uid": self.uid}
+        if self.username:
+            result["name"] = self.username
+        if self.password:
+            result["password"] = self.password
+        return result
+
+    def __repr__(self):
+        return "Admin(uid={},name={})".format(self.uid, self.username)
+
+
+class BlogArticle(db.Model):
+    __tablename__ = "blog_article"
+
+    id = Column(Integer, primary_key=True)
+    title = Column(String(64), comment="文章标题")
+    intro = Column(String(128), comment="文章概要")
+    content = Column(Text, comment="文章正文")
+    created_at = Column(Date, comment="文章创建时间")
+    update_at = Column(Date, comment="更新时间")
+
+    def to_dict(self):
+        result = {"id": self.id}
+
+        if self.title:
+            result["title"] = self.title
+        if self.intro:
+            result["intro"] = self.intro
+        if self.content:
+            result["content"] = self.content
+        if self.birthday:
+            result["created_at"] = self.created_at
+        if self.headline:
+            result["update_at"] = self.update_at
+        return result
+
+    def __repr__(self):
+        return "BlogArticle(id={},title={})".format(self.id, self.title)

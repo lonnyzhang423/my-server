@@ -1,6 +1,6 @@
 from flask import Blueprint
 
-from open.views import *
+from api.open.views import *
 
 __all__ = ["openapi", ]
 
