@@ -12,7 +12,6 @@ __all__ = ["BlogArticleApi", "BlogArticleDetailApi"]
 
 class BlogArticleApi(BaseMethodView):
 
-    @helper.login_required
     def get(self, uid=None, access_token=None):
         params = request.args
 
@@ -55,7 +54,6 @@ class BlogArticleApi(BaseMethodView):
 
 class BlogArticleDetailApi(BaseMethodView):
 
-    @helper.login_required
     def get(self, aid=None, uid=None, access_token=None):
         if not aid:
             data = RespData(400, message="文章id为空").to_json()
