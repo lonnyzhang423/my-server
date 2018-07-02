@@ -4,6 +4,7 @@ import helper
 from api import *
 from config import *
 from database import db, session_scope
+from database.models import Admin
 
 __all__ = ["RegisterApi", "LoginApi", "LogoutApi"]
 
@@ -15,7 +16,7 @@ class RegisterApi(BaseMethodView):
         注册
         """
         params = request.form
-        username = params.get("name")
+        username = params.get("username")
         password = params.get("password")
 
         with session_scope() as session:

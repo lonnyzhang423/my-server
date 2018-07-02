@@ -7,6 +7,7 @@ import helper
 from api import RespData, MyResponse
 from api.account import account
 from api.admin import admin
+from api.blog import blog
 from api.location import location
 from api.open import openapi
 from config import Config
@@ -18,6 +19,7 @@ app.response_class = MyResponse
 
 app.register_blueprint(account, url_prefix="/api")
 app.register_blueprint(admin, url_prefix="/api/admin")
+app.register_blueprint(blog, url_prefix="/api/blog")
 app.register_blueprint(location, url_prefix="/api/user/<uid>")
 app.register_blueprint(openapi, url_prefix="/api/open")
 

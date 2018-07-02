@@ -42,6 +42,26 @@ def login():
     print(resp)
 
 
+def admin_register():
+    path = "/api/admin/register"
+    url = host + path
+    params = common_params("POST", path)
+    params["username"] = "lonnyzhang"
+    params["password"] = "lonnyzhang423"
+    resp = requests.post(url, data=params, timeout=3).json()
+    print(resp)
+
+
+def admin_login():
+    path = "/api/admin/login"
+    url = host + path
+    params = common_params("POST", path)
+    params["username"] = "lonnyzhang"
+    params["password"] = "lonnyzhang423"
+    resp = requests.post(url, data=params).json()
+    print(resp)
+
+
 def update_self():
     path = "/api/self"
     url = host + path
@@ -123,5 +143,67 @@ def insert_movie():
         offset += count
 
 
+def post_article(i):
+    path = "/api/blog/articles"
+    url = host + path + "?"
+    params = common_params("POST", path)
+    for k, v in params.items():
+        url += k + "=" + v + "&"
+    url = url[:-1]
+    headers = {"Authorization": "Bearer 8adb8666-96ae-4e63-b1d9-eaed1f818304"}
+    data = {"title": "article" + str(i), "intro": "markdown intro", "content": "## title\n> this is quote"}
+    resp = requests.post(url, data=data, headers=headers).json()
+    print(resp)
+
+
+def get_articles():
+    path = "/api/blog/articles"
+    url = host + path + "?"
+    params = common_params("GET", path)
+    params["offset"] = str(20)
+    for k, v in params.items():
+        url += k + "=" + v + "&"
+    url = url[:-1]
+    print(url)
+    headers = {"Authorization": "Bearer 8adb8666-96ae-4e63-b1d9-eaed1f818304"}
+    resp = requests.get(url, headers=headers).json()
+    print(resp)
+
+
+def get_article(aid):
+    path = "/api/blog/articles/{}".format(aid)
+    url = host + path + "?"
+    params = common_params("GET", path)
+    for k, v in params.items():
+        url += k + "=" + v + "&"
+    url = url[:-1]
+    print(url)
+    headers = {"Authorization": "Bearer 8adb8666-96ae-4e63-b1d9-eaed1f818304"}
+    resp = requests.get(url, headers=headers).json()
+    print(resp)
+
+
+def update_article(aid):
+    path = "/api/blog/articles/{}".format(aid)
+    url = host + path + "?"
+    params = common_params("PUT", path)
+    for k, v in params.items():
+        url += k + "=" + v + "&"
+    url = url[:-1]
+    print(url)
+    headers = {"Authorization": "Bearer 8adb8666-96ae-4e63-b1d9-eaed1f818304"}
+    data = {"title": "title", "intro": "modified markdown intro",
+            "content": "## title\n> this is quote"}
+    resp = requests.put(url, data=data, headers=headers).json()
+    print(resp)
+
+
 if __name__ == '__main__':
-    login()
+    # login()
+    # admin_register()
+    # admin_login()
+    for i in range(20):
+        post_article(i)
+    get_article("18")
+    update_article("18")
+    get_article("18")

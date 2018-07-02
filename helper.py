@@ -115,19 +115,21 @@ def login_required(func):
     # noinspection PyBroadException
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
-        try:
-            auth = request.headers.get("Authorization")
-            if auth and isinstance(auth, str):
+        auth = request.headers.get("Authorization")
+        if isinstance(auth, str):
+            try:
                 token_type, access_token = auth.split(" ")
                 uid = db.RedisCache.get(access_token)
-                if uid:
-                    kwargs["uid"] = uid
-                    kwargs["access_token"] = access_token
-                    return func(*args, **kwargs)
-        except (ValueError, AttributeError):
-            pass
-        data = RespData(code=401, message="Unauthorized").to_json()
-        return Response(status=401, response=data)
+            except:
+                data = RespData(code=401, message="Unauthorized").to_json()
+                return Response(status=401, response=data)
+            if uid:
+                kwargs["uid"] = uid
+                kwargs["access_token"] = access_token
+                return func(*args, **kwargs)
+        else:
+            data = RespData(code=401, message="Unauthorized").to_json()
+            return Response(status=401, response=data)
 
     return wrapper
 
@@ -139,11 +141,11 @@ def common_logger(name, file, sl=logging.DEBUG, fl=logging.INFO):
     if not len(target.handlers):
         target.handlers.clear()
 
-    pardir = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-    logdir = os.path.join(pardir, "logs")
-    if not os.path.exists(logdir):
-        os.makedirs(logdir)
-    logfile = os.path.join(logdir, file)
+    curdir = os.path.abspath(os.path.dirname(__file__))
+    curdir = os.path.join(curdir, "logs")
+    if not os.path.exists(curdir):
+        os.makedirs(curdir)
+    logfile = os.path.join(curdir, file)
 
     # 100MB
     fh = logging.handlers.RotatingFileHandler(logfile, maxBytes=Config["log_file_max_bytes"],
