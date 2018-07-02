@@ -3,8 +3,6 @@ import uuid
 from flask import request
 
 from api import BaseMethodView, RespData, MyResponse
-from api.open.captcha import predict_captcha
-from api.open.captcha.config import INVALID_CAPTCHA
 from database import session_scope
 from database.models import Movie
 
@@ -77,6 +75,11 @@ class AnythingApi(BaseMethodView):
 class CaptchaApi(BaseMethodView):
 
     def post(self):
+        # lazy load captcha api
+        # todo: speed up
+        from api.open.captcha import predict_captcha
+        from api.open.captcha.config import INVALID_CAPTCHA
+
         args = request.form
         img = args.get("img_base64", "")
         if not img:
