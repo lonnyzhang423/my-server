@@ -120,16 +120,17 @@ def login_required(func):
             try:
                 token_type, access_token = auth.split(" ")
                 uid = db.RedisCache.get(access_token)
-            except:
+            except BaseException:
                 data = RespData(code=401, message="Unauthorized").to_json()
                 return Response(status=401, response=data)
+
             if uid:
                 kwargs["uid"] = uid
                 kwargs["access_token"] = access_token
                 return func(*args, **kwargs)
-        else:
-            data = RespData(code=401, message="Unauthorized").to_json()
-            return Response(status=401, response=data)
+
+        data = RespData(code=401, message="Unauthorized").to_json()
+        return Response(status=401, response=data)
 
     return wrapper
 

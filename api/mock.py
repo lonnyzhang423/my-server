@@ -150,8 +150,8 @@ def post_article(i):
     for k, v in params.items():
         url += k + "=" + v + "&"
     url = url[:-1]
-    headers = {"Authorization": "Bearer 8adb8666-96ae-4e63-b1d9-eaed1f818304"}
-    data = {"title": "article" + str(i), "intro": "markdown intro", "content": "## title\n> this is quote"}
+    headers = {"Authorization": "Bearer 7cfcb8fb-b4b9-4d0a-91dd-2f53219eeff4"}
+    data = {"title": str(i), "intro": "markdown intro", "content": "## title\n> this is quote"}
     resp = requests.post(url, data=data, headers=headers).json()
     print(resp)
 
@@ -165,7 +165,7 @@ def get_articles():
         url += k + "=" + v + "&"
     url = url[:-1]
     print(url)
-    headers = {"Authorization": "Bearer 8adb8666-96ae-4e63-b1d9-eaed1f818304"}
+    headers = {"Authorization": "Bearer 7cfcb8fb-b4b9-4d0a-91dd-2f53219eeff4"}
     resp = requests.get(url, headers=headers).json()
     print(resp)
 
@@ -178,7 +178,7 @@ def get_article(aid):
         url += k + "=" + v + "&"
     url = url[:-1]
     print(url)
-    headers = {"Authorization": "Bearer 8adb8666-96ae-4e63-b1d9-eaed1f818304"}
+    headers = {"Authorization": "Bearer 7cfcb8fb-b4b9-4d0a-91dd-2f53219eeff4"}
     resp = requests.get(url, headers=headers).json()
     print(resp)
 
@@ -191,7 +191,7 @@ def update_article(aid):
         url += k + "=" + v + "&"
     url = url[:-1]
     print(url)
-    headers = {"Authorization": "Bearer 8adb8666-96ae-4e63-b1d9-eaed1f818304"}
+    headers = {"Authorization": "Bearer 7cfcb8fb-b4b9-4d0a-91dd-2f53219eeff4"}
     data = {"title": "title", "intro": "modified markdown intro",
             "content": "## title\n> this is quote"}
     resp = requests.put(url, data=data, headers=headers).json()
@@ -202,8 +202,8 @@ if __name__ == '__main__':
     # login()
     # admin_register()
     # admin_login()
-    for i in range(20):
-        post_article(i)
-    get_article("18")
-    update_article("18")
-    get_article("18")
+    # for i in range(20):
+    #     post_article("1")
+    # get_article("1")
+    update_article("1")
+    # get_article("1")
