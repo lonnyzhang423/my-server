@@ -18,7 +18,11 @@ class RegisterApi(BaseMethodView):
         """
         注册
         """
-        params = request.form
+        params = request.get_json(silent=True) if request.is_json else request.form
+        if params is None:
+            data = RespData(code=400, message="json参数解析异常").to_json()
+            return MyResponse(response=data)
+
         rt = params.get("register_type")
         username = params.get("username")
         password = params.get("password")
@@ -61,7 +65,11 @@ class LoginApi(BaseMethodView):
         """
         登录
         """
-        params = request.form
+        params = request.get_json(silent=True) if request.is_json else request.form
+        if params is None:
+            data = RespData(code=400, message="json参数解析异常").to_json()
+            return MyResponse(response=data)
+
         gt = params.get("login_type")
         username = params.get("username")
         password = params.get("password")
@@ -141,7 +149,10 @@ class SelfApi(BaseMethodView):
         """
         更新个人信息
         """
-        params = request.form
+        params = request.get_json(silent=True) if request.is_json else request.form
+        if params is None:
+            data = RespData(code=400, message="json参数解析异常").to_json()
+            return MyResponse(response=data)
         nickname = params.get("nickname")
         gender = params.get("gender")
         headline = params.get("headline")

@@ -68,7 +68,11 @@ class BlogArticleDetailApi(BaseMethodView):
 
     @helper.login_required
     def put(self, aid=None, uid=None, access_token=None):
-        params = request.form
+
+        params = request.get_json(silent=True) if request.is_json else request.form
+        if params is None:
+            data = RespData(code=400, message="json参数解析异常").to_json()
+            return MyResponse(response=data)
 
         if not aid:
             data = RespData(400, message="文章id为空").to_json()

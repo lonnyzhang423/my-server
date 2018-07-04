@@ -1,5 +1,6 @@
 import hashlib
 import hmac
+import json
 import uuid
 
 import requests
@@ -58,7 +59,7 @@ def admin_login():
     params = common_params("POST", path)
     params["username"] = "lonnyzhang"
     params["password"] = "lonnyzhang423"
-    resp = requests.post(url, data=params).json()
+    resp = requests.post(url, headers={'Content-Type': 'application/json'}, data=json.dumps(params)).json()
     print(resp)
 
 
@@ -150,8 +151,24 @@ def post_article(i):
     for k, v in params.items():
         url += k + "=" + v + "&"
     url = url[:-1]
-    headers = {"Authorization": "Bearer 7cfcb8fb-b4b9-4d0a-91dd-2f53219eeff4"}
-    data = {"title": str(i), "intro": "markdown intro", "content": "## title\n> this is quote"}
+    headers = {"Authorization": "Bearer 72c3d3f8-98b2-4ba2-964e-6740c51c2bca"}
+    content = """#### 基本信息
+* **学校**：南京邮电大学
+* **学历**：本科、2016届
+* **专业**：软件工程、绩点top2
+* **知乎**：[lonnyzhang](https://www.zhihu.com/people/lonnyzhang/activities)
+* **Github**：[lonnyzhang423](https://github.com/lonnyzhang423)
+* **邮箱**：lonnzhang423@gmail.com
+#### 专业技能
+* **Android**：两年实际开发经验。理解`Android`体系架构，熟练掌握组件使用、界面绘制、多线程操作、数据存储等；熟练使用`RxJava`、`Retrofit`等第三方框架；
+* **Python**：一年使用经验。结合`TensorFlow`识别知乎验证码，短时间爬取上亿条数据；结合`Mysql`、`Redis`等开发了一套`Restful api`；
+* **前端**：熟悉`html`、`css`、`js`的基本用法。使用`ReactJS`结合`Python`的`Restful api`开发了前后端分离的这个网站；
+* **其他**：熟练使用`Git`、`Android Studio`、`WebStorm`、`PyCharm`等开发工具；熟练阅读英文开发文档
+#### 工作经历
+* **2016/03-至今** 东方财富网 `Android`客户端开发维护
+* **2015/09-2015/11** 公平价二手车 `Android`客户端开发维护（实习）
+"""
+    data = {"title": "this is title " + str(i), "intro": "markdown intro", "content": content}
     resp = requests.post(url, data=data, headers=headers).json()
     print(resp)
 
@@ -165,7 +182,7 @@ def get_articles():
         url += k + "=" + v + "&"
     url = url[:-1]
     print(url)
-    headers = {"Authorization": "Bearer 7cfcb8fb-b4b9-4d0a-91dd-2f53219eeff4"}
+    headers = {"Authorization": "Bearer 72c3d3f8-98b2-4ba2-964e-6740c51c2bca"}
     resp = requests.get(url, headers=headers).json()
     print(resp)
 
@@ -178,7 +195,7 @@ def get_article(aid):
         url += k + "=" + v + "&"
     url = url[:-1]
     print(url)
-    headers = {"Authorization": "Bearer 7cfcb8fb-b4b9-4d0a-91dd-2f53219eeff4"}
+    headers = {"Authorization": "Bearer 72c3d3f8-98b2-4ba2-964e-6740c51c2bca"}
     resp = requests.get(url, headers=headers).json()
     print(resp)
 
@@ -191,7 +208,7 @@ def update_article(aid):
         url += k + "=" + v + "&"
     url = url[:-1]
     print(url)
-    headers = {"Authorization": "Bearer 7cfcb8fb-b4b9-4d0a-91dd-2f53219eeff4"}
+    headers = {"Authorization": "Bearer 72c3d3f8-98b2-4ba2-964e-6740c51c2bca"}
     data = {"title": "title", "intro": "modified markdown intro",
             "content": "## title\n> this is quote"}
     resp = requests.put(url, data=data, headers=headers).json()
@@ -201,9 +218,10 @@ def update_article(aid):
 if __name__ == '__main__':
     # login()
     # admin_register()
-    # admin_login()
-    # for i in range(20):
+    admin_login()
+    # for i in range(9):
     #     post_article("1")
     # get_article("1")
-    update_article("1")
+    # update_article("1")
     # get_article("1")
+    # post_article("1")

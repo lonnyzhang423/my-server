@@ -37,6 +37,9 @@ def before_request_hook():
         if api in path:
             return
 
+    if Config["debug"]:
+        return
+
     app_id = params.get("app_id")
     timestamp = params.get("timestamp")
     nonce = params.get("nonce")

@@ -80,7 +80,7 @@ class CaptchaApi(BaseMethodView):
         from api.open.captcha import predict_captcha
         from api.open.captcha.config import INVALID_CAPTCHA
 
-        args = request.form
+        args = request.get_json(silent=True) if request.is_json else request.form
         img = args.get("img_base64", "")
         if not img:
             data = RespData(code=400, message="img_base64 required").to_json()
