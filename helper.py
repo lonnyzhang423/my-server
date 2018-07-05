@@ -12,7 +12,7 @@ from flask import request, Response
 from api import RespData
 from config import Config
 from database import db, session_scope
-from database.models import Oauth
+from database.models import Admin
 
 
 def salt_from_uid(uid):
@@ -54,56 +54,13 @@ def timestamp():
 
 # noinspection PyBroadException
 @functools.lru_cache()
-def get_app_secret(app_id):
+def load_admin_uids():
     try:
         with session_scope() as sess:
-            target = sess.query(Oauth).filter(Oauth.app_id == app_id).first()
-            return target.app_secret
+            targets = sess.query(Admin)
+            return [admin.uid for admin in targets]
     except BaseException:
         return None
-
-
-# noinspection PyBroadException
-def valid_app_id(app_id):
-    return get_app_secret(app_id) is not None
-
-
-# noinspection PyBroadException
-def valid_nonce(nonce):
-    try:
-        exists = db.RedisCache.exists(nonce)
-        gap = Config["request_gap_between_cs"]
-        db.RedisCache.set(nonce, nonce, ex=gap // 1000)
-        return not exists
-    except BaseException:
-        return False
-
-
-# noinspection PyBroadException
-def valid_timestamp(ts):
-    try:
-        max_ts_gap = Config["request_gap_between_cs"]
-        sts = timestamp()
-        cts = int(ts)
-        return (sts - cts) < max_ts_gap
-    except BaseException:
-        return False
-
-
-# noinspection PyBroadException
-def valid_signature(app_id, timestamp, nonce, method, path, sig):
-    try:
-        app_secret = get_app_secret(app_id).encode("utf8")
-        msg = (method + path + "?app_id=" + app_id +
-               "&nonce=" + nonce +
-               "&timestamp=" + str(timestamp)).encode("utf8")
-        correct_sig = hmac.new(app_secret, msg, hashlib.sha256).hexdigest()
-        if sig.lower() == correct_sig.lower():
-            return True
-        else:
-            return False
-    except BaseException:
-        return False
 
 
 def login_required(func):
@@ -135,7 +92,39 @@ def login_required(func):
     return wrapper
 
 
-def common_logger(name, file, sl=logging.DEBUG, fl=logging.INFO):
+def admin_login_required(func):
+    """
+    检查Http header Authorization参数
+    判断是否管理员登录
+    """
+
+    # noinspection PyBroadException
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        auth = request.headers.get("Authorization")
+        if isinstance(auth, str):
+            try:
+                token_type, access_token = auth.split(" ")
+                uid = db.RedisCache.get(access_token)
+                uids = load_admin_uids()
+                if uid not in uids:
+                    raise Exception
+            except BaseException:
+                data = RespData(code=401, message="Unauthorized").to_json()
+                return Response(status=401, response=data)
+
+            if uid:
+                kwargs["uid"] = uid
+                kwargs["access_token"] = access_token
+                return func(*args, **kwargs)
+
+        data = RespData(code=401, message="Unauthorized").to_json()
+        return Response(status=401, response=data)
+
+    return wrapper
+
+
+def get_logger(name, file, sl=logging.DEBUG, fl=logging.INFO):
     target = logging.getLogger(name)
     target.setLevel(logging.DEBUG)
 
@@ -165,4 +154,4 @@ def common_logger(name, file, sl=logging.DEBUG, fl=logging.INFO):
     return target
 
 
-logger = common_logger("global_logger", "common.log")
+logger = get_logger("global_logger", "common.log")

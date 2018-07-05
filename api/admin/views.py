@@ -80,7 +80,7 @@ class LoginApi(BaseMethodView):
 
 class LogoutApi(BaseMethodView):
 
-    @helper.login_required
+    @helper.admin_login_required
     def post(self, uid=None, access_token=None):
         """
         退出登录

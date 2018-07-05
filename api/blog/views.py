@@ -29,7 +29,7 @@ class BlogArticleApi(BaseMethodView):
             return MyResponse(response=data)
 
     # noinspection PyBroadException
-    @helper.login_required
+    @helper.admin_login_required
     def post(self, uid=None, access_token=None):
         params = request.form
 
@@ -66,7 +66,7 @@ class BlogArticleDetailApi(BaseMethodView):
                 data = RespData(400, message="文章id不存在").to_json()
             return MyResponse(response=data)
 
-    @helper.login_required
+    @helper.admin_login_required
     def put(self, aid=None, uid=None, access_token=None):
 
         params = request.get_json(silent=True) if request.is_json else request.form

@@ -10,7 +10,6 @@ from api.admin import admin
 from api.blog import blog
 from api.location import location
 from api.open import openapi
-from config import Config
 from database import db
 
 db.init_tables()
@@ -28,35 +27,6 @@ app.register_blueprint(openapi, url_prefix="/api/open")
 def before_request_hook():
     helper.logger.info("%s : %s %s", request.remote_addr, request.method, request.url)
     helper.logger.info("Headers:%s%s", os.linesep, request.headers)
-
-    params = request.values
-    method = request.method
-    path = request.path
-
-    for api in Config['open_api']:
-        if api in path:
-            return
-
-    if Config["debug"]:
-        return
-
-    app_id = params.get("app_id")
-    timestamp = params.get("timestamp")
-    nonce = params.get("nonce")
-    sig = params.get("signature")
-
-    if not helper.valid_nonce(nonce):
-        data = RespData(code=400, message="随机数不合法").to_json()
-        return MyResponse(response=data)
-    if not helper.valid_timestamp(timestamp):
-        data = RespData(code=400, message="时间戳不合法").to_json()
-        return MyResponse(response=data)
-    if not helper.valid_app_id(app_id):
-        data = RespData(code=400, message="应用id不合法").to_json()
-        return MyResponse(response=data)
-    if not helper.valid_signature(app_id, timestamp, nonce, method, path, sig):
-        data = RespData(code=400, message="签名参数不合法").to_json()
-        return MyResponse(response=data)
 
 
 @app.errorhandler(404)
