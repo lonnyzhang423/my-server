@@ -142,7 +142,6 @@ class BlogArticle(db.Model):
 
     id = Column(Integer, primary_key=True)
     title = Column(String(64), comment="文章标题")
-    intro = Column(String(128), comment="文章概要")
     content = Column(Text, comment="文章正文")
     create_at = Column(String(64), comment="文章创建时间")
     update_at = Column(String(64), comment="更新时间")
@@ -152,8 +151,6 @@ class BlogArticle(db.Model):
 
         if self.title:
             result["title"] = self.title
-        if self.intro:
-            result["intro"] = self.intro
         if self.content:
             result["content"] = self.content
         if self.create_at:

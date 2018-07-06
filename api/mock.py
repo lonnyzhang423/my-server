@@ -163,10 +163,10 @@ def update_article(aid):
 if __name__ == '__main__':
     # login()
     # admin_register()
-    # admin_login()
+    admin_login()
     # for i in range(9):
     #     post_article("1")
-    get_article("41")
-    update_article("41")
+    # get_article("41")
+    # update_article("41")
     # get_article("1")
     # post_article("1")

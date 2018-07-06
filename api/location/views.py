@@ -12,7 +12,7 @@ class LocationApi(BaseMethodView):
 
     @helper.login_required
     def post(self, uid=None, access_token=None):
-        params = request.form
+        params = request.get_json(silent=True) if request.is_json else request.form
 
         try:
             ts = int(params.get("timestamp"))

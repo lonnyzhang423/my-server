@@ -31,20 +31,18 @@ class BlogArticleApi(BaseMethodView):
     # noinspection PyBroadException
     @helper.admin_login_required
     def post(self, uid=None, access_token=None):
-        params = request.form
+        params = request.get_json(silent=True) if request.is_json else request.form
 
         title = params.get("title")
-        intro = params.get("intro")
         content = params.get("content")
         create_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        if not (title or intro or content):
+        if not (title or content):
             data = RespData(400, message="参数不合法").to_json()
             return MyResponse(response=data)
 
         with session_scope() as session:
             article = BlogArticle()
             article.title = title
-            article.intro = intro
             article.content = content
             article.create_at = create_at
             session.add(article)
@@ -79,7 +77,6 @@ class BlogArticleDetailApi(BaseMethodView):
             return MyResponse(response=data)
 
         title = params.get("title")
-        intro = params.get("intro")
         content = params.get("content")
         update_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -87,10 +84,25 @@ class BlogArticleDetailApi(BaseMethodView):
             article = session.query(BlogArticle).filter(BlogArticle.id == aid).first()
             if article:
                 article.title = title
-                article.intro = intro
                 article.content = content
                 article.update_at = update_at
                 data = RespData(200, message="成功").to_json()
             else:
                 data = RespData(400, message="文章id不存在").to_json()
         return MyResponse(response=data)
+
+    @helper.admin_login_required
+    def delete(self, aid=None, uid=None, access_token=None):
+
+        if not aid:
+            data = RespData(400, message="文章id为空").to_json()
+            return MyResponse(response=data)
+
+        with session_scope() as session:
+            article = session.query(BlogArticle).filter(BlogArticle.id == aid).first()
+            if article:
+                session.delete(article)
+                data = RespData(200, message="删除成功").to_json()
+            else:
+                data = RespData(400, message="文章id不存在").to_json()
+            return MyResponse(response=data)
