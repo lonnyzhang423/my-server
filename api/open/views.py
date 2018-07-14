@@ -3,14 +3,14 @@ import uuid
 from flask import request
 
 from api import BaseMethodView, RespData, MyResponse
+from config import Config
 from database import session_scope
 from database.models import Movie
 
-__all__ = ["IPApi", "UUIDApi", "HeadersApi", "AnythingApi", "CaptchaApi", "MovieApi"]
+__all__ = ["IPApi", "UUIDApi", "HeadersApi", "AnythingApi", "CaptchaApi", "MovieApi", "MockApi"]
 
 
 class IPApi(BaseMethodView):
-
     def get(self):
         ip = request.headers.get('X-Forwarded-For', request.remote_addr)
         data = RespData(code=200, message="success", data={"ip": ip}).to_json()
@@ -31,7 +31,6 @@ class HeadersApi(BaseMethodView):
 
 
 class AnythingApi(BaseMethodView):
-
     def get(self):
         return self.handle()
 
@@ -73,7 +72,6 @@ class AnythingApi(BaseMethodView):
 
 
 class CaptchaApi(BaseMethodView):
-
     def post(self):
         # lazy load captcha api
         # todo: speed up
@@ -95,7 +93,6 @@ class CaptchaApi(BaseMethodView):
 
 
 class MovieApi(BaseMethodView):
-
     def get(self):
         args = request.args
         offset = min(int(args.get("offset", 0)), 1000)
@@ -106,3 +103,18 @@ class MovieApi(BaseMethodView):
             movies = [movie.to_dict() for movie in query]
             data = RespData(code=200, message="success", data=movies).to_json()
             return MyResponse(response=data)
+
+
+class MockApi(BaseMethodView):
+    def post(self):
+        args = request.get_json(silent=True) if request.is_json else request.form
+        secret = args.get("secret", "")
+        path = args.get("path", "")
+        data = args.get("data", "")
+        if secret != Config["mock_secret"]:
+            data = RespData(code=400, message="illegal secret").to_json()
+        elif not path or data:
+            data = RespData(code=400, message="illegal arguments").to_json()
+        else:
+            data = RespData(code=200, message="success").to_json()
+        return MyResponse(response=data)
