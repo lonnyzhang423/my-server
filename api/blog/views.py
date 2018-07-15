@@ -36,7 +36,7 @@ class BlogArticleApi(BaseMethodView):
         title = params.get("title")
         content = params.get("content")
         create_at = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        if not (title or content):
+        if not title or not content:
             data = RespData(400, message="参数不合法").to_json()
             return MyResponse(response=data)
 

@@ -5,9 +5,10 @@ from flask import request
 from api import BaseMethodView, RespData, MyResponse
 from config import Config
 from database import session_scope
-from database.models import Movie
+from database.models import Movie, Mock
 
-__all__ = ["IPApi", "UUIDApi", "HeadersApi", "AnythingApi", "CaptchaApi", "MovieApi", "MockApi"]
+__all__ = ["IPApi", "UUIDApi", "HeadersApi", "AnythingApi", "CaptchaApi",
+           "MovieApi", "MockApi", "MockDynamicApi"]
 
 
 class IPApi(BaseMethodView):
@@ -110,11 +111,34 @@ class MockApi(BaseMethodView):
         args = request.get_json(silent=True) if request.is_json else request.form
         secret = args.get("secret", "")
         path = args.get("path", "")
-        data = args.get("data", "")
+        content = args.get("content", "")
         if secret != Config["mock_secret"]:
             data = RespData(code=400, message="illegal secret").to_json()
-        elif not path or data:
+            return MyResponse(response=data)
+        if not path or not content:
             data = RespData(code=400, message="illegal arguments").to_json()
-        else:
+            return MyResponse(response=data)
+
+        with session_scope() as session:
+            mock = session.query(Mock).filter(Mock.path == path).first()
+            if not mock:
+                mock = Mock()
+            mock.path = path
+            mock.content = content
+            session.add(mock)
             data = RespData(code=200, message="success").to_json()
-        return MyResponse(response=data)
+            return MyResponse(response=data)
+
+
+class MockDynamicApi(BaseMethodView):
+    def get(self, path=None):
+        if not path:
+            data = RespData(code=400, message="illegal path").to_json()
+            return MyResponse(response=data)
+        with session_scope() as session:
+            mock = session.query(Mock).filter(Mock.path == path).first()
+            if not mock:
+                data = RespData(code=400, message="path doesn't exists").to_json()
+            else:
+                data = RespData(code=200, message="success", data=mock.to_dict()).to_json()
+            return MyResponse(response=data)

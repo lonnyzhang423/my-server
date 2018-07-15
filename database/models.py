@@ -4,7 +4,7 @@ from sqlalchemy import Column, SmallInteger, Integer, BigInteger, \
 from database import db
 
 __all__ = ["User", "UserAuth", "Oauth", "UserLocation", "Movie",
-           "BlogArticle", "Admin"]
+           "BlogArticle", "Admin", "Mock"]
 
 
 class User(db.Model):
@@ -161,3 +161,23 @@ class BlogArticle(db.Model):
 
     def __repr__(self):
         return "BlogArticle(id={},title={})".format(self.id, self.title)
+
+
+class Mock(db.Model):
+    __tablename__ = "mock_api"
+
+    id = Column(Integer, primary_key=True)
+    path = Column(String(64), comment="路径")
+    content = Column(Text, comment="内容")
+
+    def to_dict(self):
+        result = {"id": self.id}
+
+        if self.path:
+            result["path"] = self.path
+        if self.content:
+            result["content"] = self.content
+        return result
+
+    def __repr__(self):
+        return "Mock(path={},content={})".format(self.path, self.content)

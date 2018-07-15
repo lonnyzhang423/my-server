@@ -9,5 +9,6 @@
   },
   "debug": true,
   "token_expires_in_ms": 2592000000,
-  "log_file_max_bytes": 104857600
+  "log_file_max_bytes": 104857600,
+  "mock_secret": "5464"
 }
