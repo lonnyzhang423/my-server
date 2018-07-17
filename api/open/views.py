@@ -140,5 +140,5 @@ class MockDynamicApi(BaseMethodView):
             if not mock:
                 data = RespData(code=400, message="path doesn't exists").to_json()
             else:
-                data = RespData(code=200, message="success", data=mock.to_dict()).to_json()
+                data = mock.content
             return MyResponse(response=data)
