@@ -1,7 +1,7 @@
 from sqlalchemy import Column, SmallInteger, Integer, BigInteger, \
     String, Numeric, Text
 
-from database import db
+from db import db
 
 __all__ = ["User", "UserAuth", "Oauth", "UserLocation", "Movie",
            "BlogArticle", "Admin", "Mock"]

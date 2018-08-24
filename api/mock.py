@@ -2,8 +2,8 @@ import json
 
 import requests
 
-from database import db, session_scope
-from database.models import Movie
+from db import db, session
+from db.models import Movie
 
 host = "http://localhost:5000"
 headers = {'Content-Type': 'application/json',
@@ -107,8 +107,8 @@ def insert_movie():
         resp = requests.get(url).json()
         for item in resp["subjects"]:
             m = compose_movie(item)
-            with session_scope() as session:
-                session.add(m)
+            with session() as sess:
+                sess.add(m)
         offset += count
 
 

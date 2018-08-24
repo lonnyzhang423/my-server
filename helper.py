@@ -10,9 +10,8 @@ import uuid
 from flask import request, Response
 
 from api import RespData
-from config import Config
-from database import db, session_scope
-from database.models import Admin
+from db import db, session
+from db.models import Admin
 
 
 def salt_from_uid(uid):
@@ -27,19 +26,31 @@ def random_uid():
     return uuid.uuid4().hex
 
 
-def valid_phone(num):
+def check_phone_num(num):
+    """
+    检查是否合法手机号
+    """
     if not num:
         return False
     return False if len(num) is not 11 else re.match("1\d{10}", num) is not None
 
 
-def valid_password(pwd):
+def check_password(pwd):
+    """
+    检查是否合法密码
+    """
     if not pwd:
         return False
     return True if len(pwd) >= 8 else False
 
 
 def encrypt_password(password, salt):
+    """
+    密码加密
+    :param password: 明文密码
+    :param salt: 盐
+    :return: 加密字符串
+    """
     if isinstance(password, str):
         password = password.encode("utf8")
     if isinstance(salt, str):
@@ -47,16 +58,11 @@ def encrypt_password(password, salt):
     return hmac.new(salt, password, hashlib.sha256).hexdigest()
 
 
-def timestamp():
-    import time
-    return int(time.time() * 1000)
-
-
 # noinspection PyBroadException
 @functools.lru_cache()
 def load_admin_uids():
     try:
-        with session_scope() as sess:
+        with session() as sess:
             targets = sess.query(Admin)
             return [admin.uid for admin in targets]
     except BaseException:
@@ -65,8 +71,7 @@ def load_admin_uids():
 
 def login_required(func):
     """
-    检查HTTP Header Authorization参数
-    判断是否登录
+    判断是否普通用户登录
     """
 
     # noinspection PyBroadException
@@ -76,7 +81,7 @@ def login_required(func):
         if isinstance(auth, str):
             try:
                 token_type, access_token = auth.split(" ")
-                uid = db.RedisCache.get(access_token)
+                uid = db.Redis.get(access_token)
             except BaseException:
                 data = RespData(code=401, message="Unauthorized").to_json()
                 return Response(status=401, response=data)
@@ -94,7 +99,6 @@ def login_required(func):
 
 def admin_login_required(func):
     """
-    检查Http header Authorization参数
     判断是否管理员登录
     """
 
@@ -105,7 +109,7 @@ def admin_login_required(func):
         if isinstance(auth, str):
             try:
                 token_type, access_token = auth.split(" ")
-                uid = db.RedisCache.get(access_token)
+                uid = db.Redis.get(access_token)
                 uids = load_admin_uids()
                 if uid not in uids:
                     raise Exception
@@ -124,22 +128,25 @@ def admin_login_required(func):
     return wrapper
 
 
-def get_logger(name, file, sl=logging.DEBUG, fl=logging.INFO):
+def get_logger(name="global_logger", file="common.log", sl=logging.DEBUG, fl=logging.INFO):
+    """
+    :param name: 唯一标识
+    :param file: 日志文件名称
+    :param sl: 控制台日志级别
+    :param fl: 文件日志级别
+    :return:日志记录器
+    """
+
     target = logging.getLogger(name)
     target.setLevel(logging.DEBUG)
 
     if not len(target.handlers):
         target.handlers.clear()
 
-    curdir = os.path.abspath(os.path.dirname(__file__))
-    curdir = os.path.join(curdir, "logs")
-    if not os.path.exists(curdir):
-        os.makedirs(curdir)
-    logfile = os.path.join(curdir, file)
+    logfile = os.path.join(log_dir(), file)
 
     # 100MB
-    fh = logging.handlers.RotatingFileHandler(logfile, maxBytes=Config["log_file_max_bytes"],
-                                              encoding="utf8", backupCount=2)
+    fh = logging.handlers.RotatingFileHandler(logfile, maxBytes=100 * 1024 * 1024, encoding="utf8", backupCount=2)
     sh = logging.StreamHandler()
 
     fmt = logging.Formatter(fmt="%(asctime)s %(levelname)s %(message)s")
@@ -154,4 +161,16 @@ def get_logger(name, file, sl=logging.DEBUG, fl=logging.INFO):
     return target
 
 
-logger = get_logger("global_logger", "common.log")
+def log_dir():
+    """
+    :return: 日志目录
+    """
+    curdir = os.path.abspath(os.path.dirname(__file__))
+    logdir = os.path.join(curdir, "logs")
+    if not os.path.exists(logdir):
+        os.makedirs(logdir)
+
+    return logdir
+
+
+logger = get_logger()

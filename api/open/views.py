@@ -4,8 +4,8 @@ from flask import request
 
 from api import BaseMethodView, RespData, MyResponse
 from config import Config
-from database import session_scope
-from database.models import Movie, Mock
+from db import session
+from db.models import Movie, Mock
 
 __all__ = ["IPApi", "UUIDApi", "HeadersApi", "AnythingApi", "CaptchaApi",
            "MovieApi", "MockApi", "MockDynamicApi"]
@@ -99,8 +99,8 @@ class MovieApi(BaseMethodView):
         offset = min(int(args.get("offset", 0)), 1000)
         limit = min(int(args.get("limit", 20)), 40)
 
-        with session_scope() as session:
-            query = session.query(Movie).limit(limit).offset(offset)
+        with session() as sess:
+            query = sess.query(Movie).limit(limit).offset(offset)
             movies = [movie.to_dict() for movie in query]
             data = RespData(code=200, message="success", data=movies).to_json()
             return MyResponse(response=data)
@@ -119,13 +119,13 @@ class MockApi(BaseMethodView):
             data = RespData(code=400, message="illegal arguments").to_json()
             return MyResponse(response=data)
 
-        with session_scope() as session:
-            mock = session.query(Mock).filter(Mock.path == path).first()
+        with session() as sess:
+            mock = sess.query(Mock).filter(Mock.path == path).first()
             if not mock:
                 mock = Mock()
             mock.path = path
             mock.content = content
-            session.add(mock)
+            sess.add(mock)
             data = RespData(code=200, message="success").to_json()
             return MyResponse(response=data)
 
@@ -135,8 +135,8 @@ class MockDynamicApi(BaseMethodView):
         if not path:
             data = RespData(code=400, message="illegal path").to_json()
             return MyResponse(response=data)
-        with session_scope() as session:
-            mock = session.query(Mock).filter(Mock.path == path).first()
+        with session() as sess:
+            mock = sess.query(Mock).filter(Mock.path == path).first()
             if not mock:
                 data = RespData(code=400, message="path doesn't exists").to_json()
             else:

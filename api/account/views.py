@@ -2,9 +2,8 @@ from flask import request
 
 import helper
 from api import *
-from config import *
-from database import db, session_scope
-from database.models import *
+from db import db, session
+from db.models import *
 
 __all__ = ["RegisterApi", "LoginApi", "LogoutApi", "SelfApi", "PasswordApi"]
 
@@ -34,16 +33,16 @@ class RegisterApi(BaseMethodView):
                 data = RespData(code=400, message="不支持:{}注册类型".format(rt)).to_json()
             return MyResponse(response=data)
 
-        if not helper.valid_phone(username):
+        if not helper.check_phone_num(username):
             data = RespData(code=400, message="手机号不合法").to_json()
             return MyResponse(response=data)
 
-        if not helper.valid_password(password):
+        if not helper.check_password(password):
             data = RespData(code=400, message="密码不合法").to_json()
             return MyResponse(response=data)
 
-        with session_scope() as session:
-            ua = session.query(UserAuth).filter(UserAuth.username == username).first()
+        with session() as sess:
+            ua = sess.query(UserAuth).filter(UserAuth.username == username).first()
             if ua:
                 data = RespData(code=400, message="用户名:{}已存在".format(username)).to_json()
                 return MyResponse(response=data)
@@ -54,8 +53,8 @@ class RegisterApi(BaseMethodView):
 
             user = User(uid=uid)
             user_auth = UserAuth(uid=uid, register_type=rt, username=username, password=encrypted)
-            session.add(user)
-            session.add(user_auth)
+            sess.add(user)
+            sess.add(user_auth)
         data = RespData(code=200, message="注册成功", data={"uid": uid}).to_json()
         return MyResponse(response=data)
 
@@ -81,16 +80,16 @@ class LoginApi(BaseMethodView):
                 data = RespData(code=400, message="不支持:{}注册类型}".format(gt)).to_json()
             return MyResponse(response=data)
 
-        if not helper.valid_phone(username):
+        if not helper.check_phone_num(username):
             data = RespData(code=400, message="手机号不合法").to_json()
             return MyResponse(response=data)
 
-        if not helper.valid_password(password):
+        if not helper.check_password(password):
             data = RespData(code=400, message="密码不合法").to_json()
             return MyResponse(response=data)
 
-        with session_scope() as session:
-            ua = session.query(UserAuth).filter(UserAuth.username == username).first()
+        with session() as sess:
+            ua = sess.query(UserAuth).filter(UserAuth.username == username).first()
             if ua is None:
                 data = RespData(code=400, message="用户名或密码错误").to_json()
                 return MyResponse(response=data)
@@ -106,8 +105,8 @@ class LoginApi(BaseMethodView):
             return MyResponse(response=data)
 
         token = helper.random_token()
-        expires_in = Config["token_expires_in_ms"]
-        db.RedisCache.set(name=token, value=uid, ex=expires_in // 1000)
+        expires_in = 30 * 24 * 60 * 60 * 1000
+        db.Redis.set(name=token, value=uid, ex=expires_in // 1000)
 
         data = RespData(code=200, message="登录成功",
                         data={"uid": uid, "access_token": token, "token_type": "Bearer",
@@ -122,7 +121,7 @@ class LogoutApi(BaseMethodView):
         """
         退出登录
         """
-        db.RedisCache.delete(access_token)
+        db.Redis.delete(access_token)
         data = RespData(code=200, message="登出成功").to_json()
         return MyResponse(response=data)
 
@@ -135,8 +134,8 @@ class SelfApi(BaseMethodView):
         """
         获取个人信息
         """
-        with session_scope() as session:
-            target = session.query(User).filter(User.uid == uid).first()
+        with session() as sess:
+            target = sess.query(User).filter(User.uid == uid).first()
             if target:
                 data = RespData(code=200, message="成功", data=target.to_dict()).to_json()
                 return MyResponse(response=data)
@@ -157,8 +156,8 @@ class SelfApi(BaseMethodView):
         gender = params.get("gender")
         headline = params.get("headline")
 
-        with session_scope() as session:
-            target = session.query(User).filter(User.uid == uid).first()
+        with session() as sess:
+            target = sess.query(User).filter(User.uid == uid).first()
             if target:
                 target.nickname = nickname
                 target.gender = gender

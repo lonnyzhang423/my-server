@@ -10,7 +10,7 @@ from api.admin import admin
 from api.blog import blog
 from api.location import location
 from api.open import openapi
-from database import db
+from db import db
 
 db.init_tables()
 app = Flask(__name__)
