@@ -9,7 +9,6 @@ __all__ = ["LocationApi", ]
 
 
 class LocationApi(BaseMethodView):
-
     @helper.login_required
     def post(self, uid=None, access_token=None):
         params = request.get_json(silent=True) if request.is_json else request.form
@@ -20,7 +19,7 @@ class LocationApi(BaseMethodView):
             lat = float(params.get("latitude"))
         except ValueError:
             data = RespData(code=400, message="经纬度不合法").to_json()
-            return MyResponse(response=data)
+            return AppResponse(response=data)
 
         with session() as sess:
             ul = UserLocation()
@@ -31,7 +30,7 @@ class LocationApi(BaseMethodView):
             sess.add(ul)
 
         data = RespData(code=200, message="成功").to_json()
-        return MyResponse(response=data)
+        return AppResponse(response=data)
 
     @helper.login_required
     def get(self, uid=None, access_token=None):
@@ -39,4 +38,4 @@ class LocationApi(BaseMethodView):
             result = sess.query(UserLocation).filter(UserLocation.uid == uid)
             result = [ul for ul in result]
             data = RespData(code=200, message="成功", data=result).to_json()
-            return MyResponse(response=data)
+            return AppResponse(response=data)

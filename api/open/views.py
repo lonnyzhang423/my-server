@@ -2,7 +2,7 @@ import uuid
 
 from flask import request
 
-from api import BaseMethodView, RespData, MyResponse
+from api import BaseMethodView, RespData, AppResponse
 from config import Config
 from db import session
 from db.models import Movie, Mock
@@ -15,20 +15,20 @@ class IPApi(BaseMethodView):
     def get(self):
         ip = request.headers.get('X-Forwarded-For', request.remote_addr)
         data = RespData(code=200, message="success", data={"ip": ip}).to_json()
-        return MyResponse(response=data)
+        return AppResponse(response=data)
 
 
 class UUIDApi(BaseMethodView):
     def get(self):
         data = RespData(code=200, message="success", data={"uuid": str(uuid.uuid4())}).to_json()
-        return MyResponse(response=data)
+        return AppResponse(response=data)
 
 
 class HeadersApi(BaseMethodView):
     def get(self):
         headers = dict(request.headers.items())
         data = RespData(code=200, message="success", data=headers).to_json()
-        return MyResponse(response=data)
+        return AppResponse(response=data)
 
 
 class AnythingApi(BaseMethodView):
@@ -58,7 +58,7 @@ class AnythingApi(BaseMethodView):
         method = request.method
         params = request.values.to_dict()
 
-        resp = MyResponse()
+        resp = AppResponse()
         resp_headers = dict(resp.headers.items())
         data = RespData(code=200, message="success",
                         data={"url": url,
@@ -83,14 +83,14 @@ class CaptchaApi(BaseMethodView):
         img = args.get("img_base64", "")
         if not img:
             data = RespData(code=400, message="img_base64 required").to_json()
-            return MyResponse(response=data)
+            return AppResponse(response=data)
 
         text = predict_captcha(img)
         if text == INVALID_CAPTCHA:
             data = RespData(code=400, message="illegal img_base64").to_json()
         else:
             data = RespData(code=200, message="success", data={"predict": text}).to_json()
-        return MyResponse(response=data)
+        return AppResponse(response=data)
 
 
 class MovieApi(BaseMethodView):
@@ -103,7 +103,7 @@ class MovieApi(BaseMethodView):
             query = sess.query(Movie).limit(limit).offset(offset)
             movies = [movie.to_dict() for movie in query]
             data = RespData(code=200, message="success", data=movies).to_json()
-            return MyResponse(response=data)
+            return AppResponse(response=data)
 
 
 class MockApi(BaseMethodView):
@@ -114,10 +114,10 @@ class MockApi(BaseMethodView):
         content = args.get("content", "")
         if secret != Config["mock_secret"]:
             data = RespData(code=400, message="illegal secret").to_json()
-            return MyResponse(response=data)
+            return AppResponse(response=data)
         if not path or not content:
             data = RespData(code=400, message="illegal arguments").to_json()
-            return MyResponse(response=data)
+            return AppResponse(response=data)
 
         with session() as sess:
             mock = sess.query(Mock).filter(Mock.path == path).first()
@@ -127,18 +127,18 @@ class MockApi(BaseMethodView):
             mock.content = content
             sess.add(mock)
             data = RespData(code=200, message="success").to_json()
-            return MyResponse(response=data)
+            return AppResponse(response=data)
 
 
 class MockDynamicApi(BaseMethodView):
     def get(self, path=None):
         if not path:
             data = RespData(code=400, message="illegal path").to_json()
-            return MyResponse(response=data)
+            return AppResponse(response=data)
         with session() as sess:
             mock = sess.query(Mock).filter(Mock.path == path).first()
             if not mock:
                 data = RespData(code=400, message="path doesn't exists").to_json()
             else:
                 data = mock.content
-            return MyResponse(response=data)
+            return AppResponse(response=data)

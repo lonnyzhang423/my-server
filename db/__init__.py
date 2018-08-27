@@ -2,9 +2,9 @@ import contextlib
 
 import redis
 from sqlalchemy import orm, engine_from_config
-from sqlalchemy.ext.declarative import declarative_base
 
 from config import Config
+from db.models import *
 
 __all__ = ["db", "session"]
 
@@ -35,12 +35,9 @@ class SqlAlchemy(object):
         self._session_factory = orm.sessionmaker(bind=self._engine, expire_on_commit=False)
         self.Session = orm.scoped_session(session_factory=self._session_factory)
         self.Redis = self.init_redis()
-        self.Model = declarative_base()
 
-    # noinspection PyUnresolvedReferences
     def init_tables(self):
-        import db.models
-        self.Model.metadata.create_all(self._engine)
+        Model.metadata.create_all(self._engine)
 
     @staticmethod
     def init_redis():

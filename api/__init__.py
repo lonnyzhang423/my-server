@@ -6,11 +6,10 @@ from flask.views import MethodView
 
 import helper
 
-__all__ = ["BaseMethodView", "MyResponse", "RespData"]
+__all__ = ["BaseMethodView", "AppResponse", "RespData"]
 
 
 class BaseMethodView(MethodView):
-
     # noinspection PyBroadException
     def dispatch_request(self, *args, **kwargs):
         try:
@@ -42,7 +41,7 @@ class RespData:
         return str(self.to_dict())
 
 
-class MyResponse(Response):
+class AppResponse(Response):
     default_mimetype = "application/json"
 
 

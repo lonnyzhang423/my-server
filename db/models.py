@@ -1,13 +1,15 @@
 from sqlalchemy import Column, SmallInteger, Integer, BigInteger, \
     String, Numeric, Text
 
-from db import db
+from sqlalchemy.ext.declarative import declarative_base
 
-__all__ = ["User", "UserAuth", "Oauth", "UserLocation", "Movie",
+__all__ = ["Model", "User", "UserAuth", "Oauth", "UserLocation", "Movie",
            "BlogArticle", "Admin", "Mock"]
 
+Model = declarative_base()
 
-class User(db.Model):
+
+class User(Model):
     __tablename__ = 'user'
 
     id = Column(BigInteger, primary_key=True)
@@ -37,7 +39,7 @@ class User(db.Model):
         return "User(uid={},name={})".format(self.uid, self.nickname)
 
 
-class UserAuth(db.Model):
+class UserAuth(Model):
     __tablename__ = "user_auth"
 
     id = Column(BigInteger, primary_key=True)
@@ -51,7 +53,7 @@ class UserAuth(db.Model):
         return "UserAuth(uid={},username={})".format(self.uid, self.username)
 
 
-class Oauth(db.Model):
+class Oauth(Model):
     __tablename__ = "oauth"
 
     id = Column(BigInteger, primary_key=True)
@@ -63,7 +65,7 @@ class Oauth(db.Model):
         return "Oauth(uid={},app_id={})".format(self.uid, self.app_id)
 
 
-class UserLocation(db.Model):
+class UserLocation(Model):
     __tablename__ = "user_location"
 
     id = Column(BigInteger, primary_key=True)
@@ -76,7 +78,7 @@ class UserLocation(db.Model):
         return "UserLocation(uid={},longitude={},latitude={})".format(self.uid, self.longitude, self.latitude)
 
 
-class Movie(db.Model):
+class Movie(Model):
     __tablename__ = "movie_top250"
 
     id = Column(Integer, primary_key=True)
@@ -117,7 +119,7 @@ class Movie(db.Model):
         return "Movie(id={},title={})".format(self.id, self.title)
 
 
-class Admin(db.Model):
+class Admin(Model):
     __tablename__ = "admin"
 
     id = Column(Integer, primary_key=True)
@@ -137,7 +139,7 @@ class Admin(db.Model):
         return "Admin(uid={},name={})".format(self.uid, self.username)
 
 
-class BlogArticle(db.Model):
+class BlogArticle(Model):
     __tablename__ = "blog_article"
 
     id = Column(Integer, primary_key=True)
@@ -163,7 +165,7 @@ class BlogArticle(db.Model):
         return "BlogArticle(id={},title={})".format(self.id, self.title)
 
 
-class Mock(db.Model):
+class Mock(Model):
     __tablename__ = "mock_api"
 
     id = Column(Integer, primary_key=True)
