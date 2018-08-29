@@ -12,7 +12,7 @@ __all__ = ["db", "session"]
 @contextlib.contextmanager
 def session():
     """
-    数据库会话
+    Provide a transactional scope around a series of operations
     """
     s = db.Session()
     try:
@@ -41,8 +41,9 @@ class SqlAlchemy(object):
 
     @staticmethod
     def init_redis():
-        pool = redis.ConnectionPool(host="localhost", port=6379, decode_responses=True)
+        pool = redis.ConnectionPool(**Config["redis"])
         return redis.Redis(connection_pool=pool)
 
 
 db = SqlAlchemy()
+db.Redis.append("uid", "lonnyzhang")

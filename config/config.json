@@ -1,12 +1,15 @@
 {
+  "debug": true,
+  "mock_secret": "5464",
   "database": {
-    "sqlalchemy.url": "mysql+mysqlconnector://user:password@localhost:3306/my_server",
+    "sqlalchemy.url": "mysql+mysqldb://user:password@localhost:3306/my_server?charset=utf8mb4",
     "sqlalchemy.echo": true,
     "sqlalchemy.pool_size": 100,
     "sqlalchemy.pool_timeout": 30
   },
   "redis": {
-  },
-  "debug": true,
-  "mock_secret": "5464"
+    "host": "localhost",
+    "port": 6379,
+    "decode_responses": true
+  }
 }

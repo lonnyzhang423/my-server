@@ -1,5 +1,4 @@
-from sqlalchemy import Column, SmallInteger, Integer, BigInteger, \
-    String, Numeric, Text
+from sqlalchemy import Column, SmallInteger, Integer, BigInteger, String, Numeric, Text
 
 from sqlalchemy.ext.declarative import declarative_base
 
