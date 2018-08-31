@@ -1,4 +1,3 @@
-import functools
 import hashlib
 import hmac
 import logging
@@ -7,11 +6,12 @@ import os
 import re
 import uuid
 
-from flask import request, Response
+from db import login_required, admin_login_required
 
-from api import RespData
-from db import db, session
-from db.models import Admin
+__all__ = ['login_required', 'admin_login_required',
+           'salt_from_uid', 'random_token', 'random_uid',
+           'check_phone_num', 'check_password', 'encrypt_password',
+           'get_logger', 'log_dir', 'logger']
 
 
 def salt_from_uid(uid):
@@ -56,76 +56,6 @@ def encrypt_password(password, salt):
     if isinstance(salt, str):
         salt = salt.encode("utf8")
     return hmac.new(salt, password, hashlib.sha256).hexdigest()
-
-
-# noinspection PyBroadException
-@functools.lru_cache()
-def load_admin_uids():
-    try:
-        with session() as sess:
-            targets = sess.query(Admin)
-            return [admin.uid for admin in targets]
-    except BaseException:
-        return None
-
-
-def login_required(func):
-    """
-    判断是否普通用户登录
-    """
-
-    # noinspection PyBroadException
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        auth = request.headers.get("Authorization")
-        if isinstance(auth, str):
-            try:
-                token_type, access_token = auth.split(" ")
-                uid = db.Redis.get(access_token)
-            except BaseException:
-                data = RespData(code=401, message="Unauthorized").to_json()
-                return Response(status=401, response=data)
-
-            if uid:
-                kwargs["uid"] = uid
-                kwargs["access_token"] = access_token
-                return func(*args, **kwargs)
-
-        data = RespData(code=401, message="Unauthorized").to_json()
-        return Response(status=401, response=data)
-
-    return wrapper
-
-
-def admin_login_required(func):
-    """
-    判断是否管理员登录
-    """
-
-    # noinspection PyBroadException
-    @functools.wraps(func)
-    def wrapper(*args, **kwargs):
-        auth = request.headers.get("Authorization")
-        if isinstance(auth, str):
-            try:
-                token_type, access_token = auth.split(" ")
-                uid = db.Redis.get(access_token)
-                uids = load_admin_uids()
-                if uid not in uids:
-                    raise Exception
-            except BaseException:
-                data = RespData(code=401, message="Unauthorized").to_json()
-                return Response(status=401, response=data)
-
-            if uid:
-                kwargs["uid"] = uid
-                kwargs["access_token"] = access_token
-                return func(*args, **kwargs)
-
-        data = RespData(code=401, message="Unauthorized").to_json()
-        return Response(status=401, response=data)
-
-    return wrapper
 
 
 def get_logger(name="global_logger", file="common.log", sl=logging.DEBUG, fl=logging.INFO):
